@@ -11,5 +11,14 @@ app.use(express.json());
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.8uhbkvb.mongodb.net/?retryWrites=true&w=majority`;
-console.log(uri)
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+
+
+
+app.get('/', (req, res) => {
+  res.send('Welcome to Fitlessian family!')
+})
+
+app.listen(port, () => {
+  console.log(`Welcome to fitlessian ${port}`)
+})
