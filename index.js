@@ -22,6 +22,8 @@ async function run() {
 
     const UsersCollection = client.db("fitlessian").collection("User")
     const servicesCollection = client.db("fitlessian").collection("services")
+    const foodCollection = client.db("fitlessian").collection("foods")
+    const loggedFoodCollection = client.db("fitlessian").collection("loggedFood")
 
     app.get('/users/:email', async (req, res) => {
       const email = req.params.email;
@@ -47,7 +49,23 @@ async function run() {
       const services = await UsersCollection.find(query).toArray();
       res.send(services)
     })
+    app.get('/foods', async (req, res) => {
+      const query = {};
+      const foods = await foodCollection.find(query).toArray();
+      res.send(foods)
+    })
     
+    app.post('/loggedFood', async (req, res) => {
+      const loggedFood = req.body;
+      const result = await loggedFoodCollection.insertOne(loggedFood);
+      res.send(result);
+  })
+  app.get('/loggedFood/:email', async (req,res)=>{
+    const email = req.params.email;
+    const query = { userEmail : email};
+    const loggedFood = await loggedFoodCollection.find(query).toArray();
+    res.send(loggedFood)
+  })
   } finally {
   }
 }
