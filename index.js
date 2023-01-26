@@ -74,7 +74,6 @@ async function run() {
     // --------------
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
-      console.log(email)
       const query = { email: email };
       const result = await servicesCollection.findOne(query);
 
