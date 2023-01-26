@@ -24,6 +24,7 @@ async function run() {
     const servicesCollection = client.db("fitlessian").collection("services")
     const foodCollection = client.db("fitlessian").collection("foods")
     const loggedFoodCollection = client.db("fitlessian").collection("loggedFood")
+    const favouriteFoodCollection = client.db("fitlessian").collection("favouriteFood")
 
     app.get('/users/:email', async (req, res) => {
       const email = req.params.email;
@@ -60,11 +61,24 @@ async function run() {
       const result = await loggedFoodCollection.insertOne(loggedFood);
       res.send(result);
   })
+
+    app.post('/favouriteFood', async (req, res) => {
+      const favouriteFood = req.body;
+      const result = await favouriteFoodCollection.insertOne(favouriteFood);
+      res.send(result);
+  })
   app.get('/loggedFood/:email', async (req,res)=>{
     const email = req.params.email;
     const query = { userEmail : email};
     const loggedFood = await loggedFoodCollection.find(query).toArray();
     res.send(loggedFood)
+  })
+
+  app.get('/favouriteFood/:email', async (req,res)=>{
+    const email = req.params.email;
+    const query = { userEmail : email};
+    const favouriteFood = await favouriteFoodCollection.find(query).toArray();
+    res.send(favouriteFood)
   })
   } finally {
   }
