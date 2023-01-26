@@ -79,6 +79,29 @@ async function run() {
 
       res.send(result);
     });
+    app.patch("/users/edit/:email", async (req, res) => {
+      const filter = { email: req.params.email };
+      const user = req.body;
+      const option = { upsert: true };
+      const updatedUser = {
+        $set: {
+          firstname: user.firstname,
+          lastname: user.lastname,
+          birthday: user.birthday,
+          age: user.age,
+
+          permanentAddress: user.permanentAddress,
+          phone: user.phone,
+          city: user.city,
+        },
+      };
+      const result = await usersCollection.updateOne(
+        filter,
+        updatedUser,
+        option
+      );
+      res.send(result);
+    });
 
     app.post("/users", async (req, res) => {
       const user = req.body;
