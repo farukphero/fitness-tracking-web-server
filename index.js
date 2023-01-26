@@ -155,6 +155,14 @@ async function run() {
       const result = await loggedFoodCollection.insertOne(loggedFood);
       res.send(result);
   })
+ 
+// favourite Food
+    app.post('/favouriteFood', async (req, res) => {
+      const favouriteFood = req.body;
+      const result = await favouriteFoodCollection.insertOne(favouriteFood);
+      res.send(result);
+  })
+ 
   app.get('/loggedFood/:email', async (req,res)=>{
     const email = req.params.email;
     const query = { userEmail : email};
