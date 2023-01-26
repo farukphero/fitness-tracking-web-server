@@ -16,7 +16,8 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
- 
+
+// eee
 async function run() {
   try {
     const UsersCollection = client.db("fitlessian").collection("User");
@@ -25,7 +26,7 @@ async function run() {
     const ActivitiesCollection = client
       .db(`fitlessian`)
       .collection(`Activities`);
-    // const foodCollection = client.db("fitlessian").collection("foods")
+    const foodCollection = client.db("fitlessian").collection("foods")
     const loggedFoodCollection = client.db("fitlessian").collection("loggedFood")
     const tutorialCollection = client.db("fitlessian").collection("tutorials")
     const categoryCollection = client.db("fitlessian").collection("category")
@@ -84,7 +85,7 @@ async function run() {
     })
 
 
-  
+    app.get('/services', async (req, res) => {
  
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
@@ -114,14 +115,14 @@ async function run() {
  
 
  
-    // app.get('/foods', async (req, res) => {
-    //   const query = {};
-    //   const foods = await foodCollection.find(query).toArray();
-    //   res.send(foods)
-    // })
+    app.get('/foods', async (req, res) => {
+      const query = {};
+      const foods = await foodCollection.find(query).toArray();
+      res.send(foods)
+    })
  
-    //   res.send(services);
-    // });
+      res.send(services);
+    });
 
     app.post(`/foods`, async (req, res) => {
       const food = req.body;
