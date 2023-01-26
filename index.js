@@ -22,14 +22,62 @@ async function run() {
 
     const UsersCollection = client.db("fitlessian").collection("User")
     const servicesCollection = client.db("fitlessian").collection("services")
+    const categoryCollection = client.db("fitlessian").collection("category")
+    const tutorialCollection = client.db("fitlessian").collection("tutorials")
+
+
+    app.post('/category', async (req, res) => {
+      const post = req.body;
+      const result = await categoryCollection.insertOne(post);
+      console.log(result)
+      res.send(result);
+    })
+    app.post('/tutorial', async (req, res) => {
+      const post = req.body;
+      const result = await tutorialCollection.insertOne(post);
+      console.log(result)
+      res.send(result);
+    })
+
+    app.get('/tutorials',async(req,res)=>{
+        
+      const category=req.query.category;
+      const query={
+        category:category
+      }
+       const cursor=tutorialCollection.find(query);
+       const result=await cursor.toArray();
+       res.send(result);
+      
+     })
+    app.get('/singleCategory/:id',async(req,res)=>{
+      const id=req.params.id;
+      const query={_id:ObjectId(id)}
+      const result=await categoryCollection.findOne(query);
+      res.send(result);
+    })
+
+    app.get('/categories',async(req,res)=>{
+      const query={};
+      const categories=await categoryCollection.find(query).toArray();
+      res.send(categories);
+    })
+
+
+
+
+
+
+
+    
 
     app.get('/users/:email', async (req, res) => {
       const email = req.params.email;
-      const query = { email : email }
+      const query = { email: email }
       const result = await UsersCollection.findOne(query)
       res.send(result)
     })
-   
+
     app.post('/users', async (req, res) => {
       const user = req.body
       const result = await UsersCollection.insertOne(user)
@@ -47,7 +95,7 @@ async function run() {
       const services = await UsersCollection.find(query).toArray();
       res.send(services)
     })
-    
+
   } finally {
   }
 }
