@@ -23,13 +23,12 @@ async function run() {
     const UsersCollection = client.db("fitlessian").collection("User");
     const servicesCollection = client.db("fitlessian").collection("services");
     const FoodsCollection = client.db(`fitlessian`).collection(`foods`);
-    const ActivitiesCollection = client
-      .db(`fitlessian`)
-      .collection(`Activities`);
+    const ActivitiesCollection = client.db(`fitlessian`).collection(`Activities`);
     const foodCollection = client.db("fitlessian").collection("foods")
     const loggedFoodCollection = client.db("fitlessian").collection("loggedFood")
     const tutorialCollection = client.db("fitlessian").collection("tutorials")
     const categoryCollection = client.db("fitlessian").collection("category")
+    const favoriteFoodCollection = client.db("fitlessian").collection("favouriteFood")
 
     app.post('/tutorial', async (req, res) => {
       const post = req.body;
@@ -155,11 +154,18 @@ async function run() {
       const result = await loggedFoodCollection.insertOne(loggedFood);
       res.send(result);
   })
+
+  app.get('/favouriteFood/:email', async (req,res)=>{
+    const email = req.params.email;
+    const query = { userEmail : email};
+    const favoriteFood = await favoriteFoodCollection.find(query).toArray();
+    res.send(favoriteFood)
+  })
  
 // favourite Food
     app.post('/favouriteFood', async (req, res) => {
-      const favouriteFood = req.body;
-      const result = await favouriteFoodCollection.insertOne(favouriteFood);
+      const favoriteFood = req.body;
+      const result = await favoriteFoodCollection.insertOne(favoriteFood);
       res.send(result);
   })
  
