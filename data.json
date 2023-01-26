@@ -1,0 +1,232 @@
+[
+  {
+    "category": "Beef & Veal Calories",
+    "name": "beef",
+    "cal_per_oz": 48,
+    "per_serving": {
+      "type": "ounce",
+      "amount": 6,
+      "gram": 168
+    }
+  },
+  {
+    "category": "Beef & Veal Calories",
+    "name": "beef brisket",
+    "cal_per_oz": 38,
+    "per_serving": {
+      "type": "piece",
+      "amount": 1,
+      "gram": 178
+    }
+  },
+  {
+    "category": "Beef & Veal Calories",
+    "name": "beef fillet",
+    "cal_per_oz": 53,
+    "per_serving": {
+      "type": "ounce",
+      "amount": 6,
+      "gram": 168
+    }
+  },
+  {
+    "category": "Beef & Veal Calories",
+    "name": "beef goulash",
+    "cal_per_oz": 34,
+    "per_serving": {
+      "type": "cup",
+      "amount": 1,
+      "gram": 227
+    }
+  },
+  {
+    "category": "Beef & Veal Calories",
+    "name": "beef minute steak",
+    "cal_per_oz": 37,
+    "per_serving": {
+      "type": "ounce",
+      "amount": 6,
+      "gram": 168
+    }
+  },
+  {
+    "category": "Beef & Veal Calories",
+    "name": "beef neck",
+    "cal_per_oz": 60,
+    "per_serving": {
+      "type": "piece",
+      "amount": 1,
+      "gram": 228
+    }
+  },
+  {
+    "category": "Beef & Veal Calories",
+    "name": "beef pancreas",
+    "cal_per_oz": 76,
+    "per_serving": {
+      "type": "piece",
+      "amount": 1,
+      "gram": 222
+    }
+  },
+  {
+    "category": "Beef & Veal Calories",
+    "name": "beef patty",
+    "cal_per_oz": 69,
+    "per_serving": {
+      "type": "patty",
+      "amount": 1,
+      "gram": 64
+    }
+  },
+  {
+    "category": "Beef & Veal Calories",
+    "name": "beef prime rib",
+    "cal_per_oz": 113,
+    "per_serving": {
+      "type": "piece",
+      "amount": 1,
+      "gram": 278
+    }
+  },
+  {
+    "category": "Beef & Veal Calories",
+    "name": "beef ribs",
+    "cal_per_oz": 55,
+    "per_serving": {
+      "type": "rib",
+      "amount": 1,
+      "gram": 340
+    }
+  },
+  {
+    "category": "Cereal Products Calories",
+    "name": "amaranth",
+    "cal_per_oz": 104,
+    "per_serving": {
+      "type": "cup",
+      "amount": 1,
+      "gram": 193
+    }
+  },
+  {
+    "category": "Cereal Products Calories",
+    "name": "barley",
+    "cal_per_oz": 99,
+    "per_serving": {
+      "type": "cup",
+      "amount": 1,
+      "gram": 157
+    }
+  },
+  {
+    "category": "Cereal Products Calories",
+    "name": "barley groats",
+    "cal_per_oz": 28,
+    "per_serving": {
+      "type": "cup",
+      "amount": 1,
+      "gram": 31
+    }
+  },
+  {
+    "category": "Cereal Products Calories",
+    "name": "brown rice",
+    "cal_per_oz": 109,
+    "per_serving": {
+      "type": "cup",
+      "amount": 1,
+      "gram": 195
+    }
+  },
+  {
+    "category": "Cereal Products Calories",
+    "name": "buckwheat",
+    "cal_per_oz": 96,
+    "per_serving": {
+      "type": "cup",
+      "amount": 1,
+      "gram": 170
+    }
+  },
+  {
+    "category": "Cereal Products Calories",
+    "name": "buckwheat groats",
+    "cal_per_oz": 97,
+    "per_serving": {
+      "type": "cup",
+      "amount": 1,
+      "gram": 164
+    }
+  },
+  {
+    "category": "Cereal Products Calories",
+    "name": "corn waffles",
+    "cal_per_oz": 77,
+    "per_serving": {
+      "type": "waffle",
+      "amount": 1,
+      "gram": 40
+    }
+  },
+  {
+    "category": "Cereal Products Calories",
+    "name": "cornmeal",
+    "cal_per_oz": 101,
+    "per_serving": {
+      "type": "cup",
+      "amount": 1,
+      "gram": 122
+    }
+  },
+  {
+    "category": "Cereal Products Calories",
+    "name": "cornstarch",
+    "cal_per_oz": 107,
+    "per_serving": {
+      "type": "cup",
+      "amount": 1,
+      "gram": 128
+    }
+  },
+  {
+    "category": "Cereal Products Calories",
+    "name": "cousous",
+    "cal_per_oz": 105,
+    "per_serving": {
+      "type": "cup",
+      "amount": 1,
+      "gram": 173
+    }
+  },
+  {
+    "category": "cheese",
+    "name": "american cheese",
+    "cal_per_oz": 41,
+    "per_serving": {
+      "type": "slice",
+      "amount": 1,
+      "gram": 21
+    }
+  },
+  {
+    "category": "cheese",
+    "name": "applewood",
+    "cal_per_oz": 115,
+    "per_serving": {
+      "type": "slice",
+      "amount": 1,
+      "gram": 20
+    }
+  },
+  {
+    "category": "cheese",
+    "name": "asiago cheese",
+    "cal_per_oz": 110,
+    "per_serving": {
+      "type": "ounce",
+      "amount": 1,
+      "gram": 28.35
+    }
+  }
+]
