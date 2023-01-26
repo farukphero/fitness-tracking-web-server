@@ -22,6 +22,11 @@ async function run() {
   try {
     const UsersCollection = client.db("fitlessian").collection("User");
     const servicesCollection = client.db("fitlessian").collection("services");
+ 
+
+    app.get("/users/:email", async (req, res) => {
+      const email = req.params.email;
+ 
     const FoodsCollection = client.db(`fitlessian`).collection(`foods`);
     const ActivitiesCollection = client.db(`fitlessian`).collection(`Activities`);
     const foodCollection = client.db("fitlessian").collection("foods")
@@ -88,6 +93,7 @@ async function run() {
  
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
+ 
       const query = { email: email };
       const result = await UsersCollection.findOne(query);
       res.send(result);
@@ -97,9 +103,40 @@ async function run() {
       const user = req.body;
       const result = await UsersCollection.insertOne(user);
       res.send(result);
+ 
+      // console.log(:)
+    });
+
+    app.patch("/users/edit/:email", async (req, res) => {
+      const filter = { email: req.params.email };
+      const user = req.body;
+      const option = { upsert: true };
+      const updatedUser = {
+        $set: {
+          firstname: user.firstname,
+          lastname: user.lastname,
+          birthday: user.birthday,
+          age: user.age,
+
+          permanentAddress: user.permanentAddress,
+          phone: user.phone,
+          city: user.city,
+        },
+      };
+      const result = await UsersCollection.updateOne(
+        filter,
+        updatedUser,
+        option
+      );
+      res.send(result);
     });
 
     app.get("/services", async (req, res) => {
+ 
+    });
+
+    app.get("/services", async (req, res) => {
+ 
  
       const query = {};
       const services = await servicesCollection.find(query).toArray();
@@ -108,6 +145,10 @@ async function run() {
     app.get("/users", async (req, res) => {
       const query = {};
       const services = await UsersCollection.find(query).toArray();
+ 
+      res.send(services);
+    });
+ 
  
       res.send(services)
     })
@@ -175,6 +216,7 @@ async function run() {
     const loggedFood = await loggedFoodCollection.find(query).toArray();
     res.send(loggedFood)
   })
+ 
  
   } finally {
   }
