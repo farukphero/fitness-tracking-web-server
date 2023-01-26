@@ -27,9 +27,6 @@ async function run() {
     const ActivitiesCollection = client
       .db(`fitlessian`)
       .collection(`Activities`);
- 
-    const UsersCollection = client.db("fitlessian").collection("User")
-    const servicesCollection = client.db("fitlessian").collection("services")
     const foodCollection = client.db("fitlessian").collection("foods")
     const loggedFoodCollection = client.db("fitlessian").collection("loggedFood")
 
