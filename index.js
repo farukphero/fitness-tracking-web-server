@@ -17,22 +17,19 @@ const client = new MongoClient(uri, {
 });
 
  
-
 async function run() {
   try {
-
-    const UsersCollection = client.db("fitlessian").collection("User")
-    const servicesCollection = client.db("fitlessian").collection("services")
-    const categoryCollection = client.db("fitlessian").collection("category")
+    const UsersCollection = client.db("fitlessian").collection("User");
+    const servicesCollection = client.db("fitlessian").collection("services");
+    const FoodsCollection = client.db(`fitlessian`).collection(`foods`);
+    const ActivitiesCollection = client
+      .db(`fitlessian`)
+      .collection(`Activities`);
+    // const foodCollection = client.db("fitlessian").collection("foods")
+    const loggedFoodCollection = client.db("fitlessian").collection("loggedFood")
     const tutorialCollection = client.db("fitlessian").collection("tutorials")
+    const categoryCollection = client.db("fitlessian").collection("category")
 
-
-    app.post('/category', async (req, res) => {
-      const post = req.body;
-      const result = await categoryCollection.insertOne(post);
-      console.log(result)
-      res.send(result);
-    })
     app.post('/tutorial', async (req, res) => {
       const post = req.body;
       const result = await tutorialCollection.insertOne(post);
@@ -51,6 +48,14 @@ async function run() {
        res.send(result);
       
      })
+
+     app.post('/category', async (req, res) => {
+      const post = req.body;
+      const result = await categoryCollection.insertOne(post);
+      console.log(result)
+      res.send(result);
+    })
+    
     app.get('/singleCategory/:id',async(req,res)=>{
       const id=req.params.id;
       const query={_id:ObjectId(id)}
@@ -63,34 +68,7 @@ async function run() {
       const categories=await categoryCollection.find(query).toArray();
       res.send(categories);
     })
-
-
-
-
-
-
-
-    
-
-    app.get('/users/:email', async (req, res) => {
-      const email = req.params.email;
-      const query = { email: email }
-      const result = await UsersCollection.findOne(query)
- 
-console.log(uri);
-
-// eee
-async function run() {
-  try {
-    const UsersCollection = client.db("fitlessian").collection("User");
-    const servicesCollection = client.db("fitlessian").collection("services");
-    const FoodsCollection = client.db(`fitlessian`).collection(`Foods`);
-    const ActivitiesCollection = client
-      .db(`fitlessian`)
-      .collection(`Activities`);
-    const foodCollection = client.db("fitlessian").collection("foods")
-    const loggedFoodCollection = client.db("fitlessian").collection("loggedFood")
-
+    // --------------
     app.get('/users/:email', async (req, res) => {
       const email = req.params.email;
       const query = { email : email }
@@ -106,7 +84,7 @@ async function run() {
     })
 
 
-    app.get('/services', async (req, res) => {
+  
  
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
@@ -136,14 +114,14 @@ async function run() {
  
 
  
-    app.get('/foods', async (req, res) => {
-      const query = {};
-      const foods = await foodCollection.find(query).toArray();
-      res.send(foods)
-    })
+    // app.get('/foods', async (req, res) => {
+    //   const query = {};
+    //   const foods = await foodCollection.find(query).toArray();
+    //   res.send(foods)
+    // })
  
-      res.send(services);
-    });
+    //   res.send(services);
+    // });
 
     app.post(`/foods`, async (req, res) => {
       const food = req.body;
