@@ -19,6 +19,35 @@ const client = new MongoClient(uri, {
 // eee
 async function run() {
   try {
+ 
+    const UsersCollection = client.db("fitlessian").collection("User");
+    const servicesCollection = client.db("fitlessian").collection("services");
+
+    app.get("/users/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await UsersCollection.findOne(query);
+      res.send(result);
+      // console.log(result)
+    });
+
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const result = await UsersCollection.insertOne(user);
+      res.send(result);
+    });
+
+    app.get("/services", async (req, res) => {
+      const query = {};
+      const services = await servicesCollection.find(query).toArray();
+      res.send(services);
+    });
+    app.get("/users", async (req, res) => {
+      const query = {};
+      const services = await UsersCollection.find(query).toArray();
+      res.send(services);
+    });
+ 
     const usersCollection = client.db("fitlessian").collection("User");
     const servicesCollection = client.db("fitlessian").collection("services");
     const FoodsCollection = client.db(`fitlessian`).collection(`foods`);
@@ -218,6 +247,7 @@ async function run() {
       );
       res.send(result);
     });
+ 
   } finally {
   }
 }
