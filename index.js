@@ -21,8 +21,22 @@ async function run() {
   try {
  
     const UsersCollection = client.db("fitlessian").collection("User");
+    const usersCollection = client.db("fitlessian").collection("User");
     const servicesCollection = client.db("fitlessian").collection("services");
-
+    const FoodsCollection = client.db(`fitlessian`).collection(`foods`);
+    const ActivitiesCollection = client
+      .db(`fitlessian`)
+      .collection(`Activities`);
+    const foodCollection = client.db("fitlessian").collection("foods");
+    const loggedFoodCollection = client
+      .db("fitlessian")
+      .collection("loggedFood");
+    const tutorialCollection = client.db("fitlessian").collection("tutorials");
+    const categoryCollection = client.db("fitlessian").collection("category");
+    const favoriteFoodCollection = client
+      .db("fitlessian")
+      .collection("favouriteFood");
+ 
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
@@ -47,22 +61,6 @@ async function run() {
       const services = await UsersCollection.find(query).toArray();
       res.send(services);
     });
- 
-    const usersCollection = client.db("fitlessian").collection("User");
-    const servicesCollection = client.db("fitlessian").collection("services");
-    const FoodsCollection = client.db(`fitlessian`).collection(`foods`);
-    const ActivitiesCollection = client
-      .db(`fitlessian`)
-      .collection(`Activities`);
-    const foodCollection = client.db("fitlessian").collection("foods");
-    const loggedFoodCollection = client
-      .db("fitlessian")
-      .collection("loggedFood");
-    const tutorialCollection = client.db("fitlessian").collection("tutorials");
-    const categoryCollection = client.db("fitlessian").collection("category");
-    const favoriteFoodCollection = client
-      .db("fitlessian")
-      .collection("favouriteFood");
 
     app.post("/tutorial", async (req, res) => {
       const post = req.body;
@@ -114,11 +112,10 @@ async function run() {
       const option = { upsert: true };
       const updatedUser = {
         $set: {
-          firstname: user.firstname,
-          lastname: user.lastname,
+          firstName: user.firstName,
+          lastName: user.lastName,
           birthday: user.birthday,
           age: user.age,
-
           permanentAddress: user.permanentAddress,
           phone: user.phone,
           city: user.city,
