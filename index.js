@@ -19,24 +19,19 @@ const client = new MongoClient(uri, {
 // eee
 async function run() {
   try {
- 
+
     const UsersCollection = client.db("fitlessian").collection("User");
     const usersCollection = client.db("fitlessian").collection("User");
     const servicesCollection = client.db("fitlessian").collection("services");
     const FoodsCollection = client.db(`fitlessian`).collection(`foods`);
-    const ActivitiesCollection = client
-      .db(`fitlessian`)
-      .collection(`Activities`);
+    const ActivitiesCollection = client.db(`fitlessian`).collection(`Activities`);
     const foodCollection = client.db("fitlessian").collection("foods");
-    const loggedFoodCollection = client
-      .db("fitlessian")
-      .collection("loggedFood");
+    const loggedFoodCollection = client.db("fitlessian").collection("loggedFood");
     const tutorialCollection = client.db("fitlessian").collection("tutorials");
     const categoryCollection = client.db("fitlessian").collection("category");
-    const favoriteFoodCollection = client
-      .db("fitlessian")
-      .collection("favouriteFood");
- 
+    const favoriteFoodCollection = client.db("fitlessian").collection("favouriteFood");
+    const postCollection = client.db("fitlessian").collection("post");
+
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
@@ -48,6 +43,18 @@ async function run() {
     app.post("/users", async (req, res) => {
       const user = req.body;
       const result = await UsersCollection.insertOne(user);
+      res.send(result);
+    });
+
+    // userpost
+    app.post("/post", async (req, res) => {
+      const user = req.body;
+      const result = await postCollection.insertOne(user);
+      res.send(result);
+    });
+    app.get("/post", async (req, res) => {
+      const user = {}
+      const result = await postCollection.find(user).toArray();
       res.send(result);
     });
 
@@ -221,11 +228,11 @@ async function run() {
       const loggedFood = await loggedFoodCollection.find(query).toArray();
       res.send(loggedFood);
     });
-    app.get('/users/admin/:email', async (req, res)=>{
+    app.get('/users/admin/:email', async (req, res) => {
       const email = req.params.email;
-      const query = {email: email}
+      const query = { email: email }
       const user = await usersCollection.findOne(query);
-      res.send({isAdmin: user?.role === 'admin'})
+      res.send({ isAdmin: user?.role === 'admin' })
     })
 
     app.put("/users/admin/:id", async (req, res) => {
@@ -244,7 +251,7 @@ async function run() {
       );
       res.send(result);
     });
- 
+
   } finally {
   }
 }
