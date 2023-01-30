@@ -113,7 +113,7 @@ async function run() {
 
       res.send(result);
     });
-    app.patch("/users/edit/:email", async (req, res) => {
+    app.put("/users/edit/:email", async (req, res) => {
       const filter = { email: req.params.email };
       const user = req.body;
       const option = { upsert: true };
@@ -126,6 +126,7 @@ async function run() {
           permanentAddress: user.permanentAddress,
           phone: user.phone,
           city: user.city,
+          picture:user.picture
         },
       };
       const result = await usersCollection.updateOne(
@@ -141,8 +142,6 @@ async function run() {
       const result = await usersCollection.insertOne(user);
       res.send(result);
     });
-
-    app.get("/services", async (req, res) => {
       app.get("/users/:email", async (req, res) => {
         const email = req.params.email;
         const query = { email: email };
@@ -174,8 +173,7 @@ async function run() {
         res.send(foods);
       });
 
-      res.send(services);
-    });
+     
 
     app.post(`/foods`, async (req, res) => {
       const food = req.body;
