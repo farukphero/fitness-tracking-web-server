@@ -9,16 +9,22 @@ require("dotenv").config();
 app.use(cors());
 app.use(express.json());
 
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@clusterfit.lgaupy2.mongodb.net/?retryWrites=true&w=majority`;
-const client = new MongoClient(uri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverApi: ServerApiVersion.v1,
-});
+console.log(uri)
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+
+
+// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@clusterfit.lgaupy2.mongodb.net/?retryWrites=true&w=majority`;
+// const client = new MongoClient(uri, {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true, serverApi: ServerApiVersion.v1
+// });
 
 // eee
 async function run() {
   try {
+
 
     const UsersCollection = client.db("fitlessian").collection("User");
     const usersCollection = client.db("fitlessian").collection("User");
@@ -31,6 +37,7 @@ async function run() {
     const categoryCollection = client.db("fitlessian").collection("category");
     const favoriteFoodCollection = client.db("fitlessian").collection("favouriteFood");
     const postCollection = client.db("fitlessian").collection("post");
+    const commentCollection = client.db("fitlessian").collection("comment");
 
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
@@ -46,18 +53,51 @@ async function run() {
       res.send(result);
     });
 
-    // userpost
+    // userpost rumel
     app.post("/post", async (req, res) => {
       const user = req.body;
       const result = await postCollection.insertOne(user);
       res.send(result);
     });
+    // postdata from mongodb rumel
     app.get("/post", async (req, res) => {
       const user = {}
       const result = await postCollection.find(user).toArray();
       res.send(result);
     });
+    // postlike rumel
+    app.put('/post/:id', async (req, res) => {
+      const post = req.body;
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          liking: post?.like,
+          likeusersname: post?.username
+        }
+      }
+      const result = await postCollection.updateMany(filter, updateDoc, options)
+      res.send(result)
+    });
 
+
+    // comment rumel
+    app.post('/post/comment/:id', async (req, res) => {
+      const post = req.body;
+      console.log(post)
+      const result = await commentCollection.insertOne(post);
+      res.send(result);
+    })
+    // comment every post by all users rumel
+    app.get('/post/comment/:id', async (req, res) => {
+      const id = req.params.id
+      const query = {
+        commentId: id
+      }
+      const result = await commentCollection.find(query).toArray();
+      res.send(result);
+    })
     app.get("/services", async (req, res) => {
       const query = {};
       const services = await servicesCollection.find(query).toArray();
