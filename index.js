@@ -126,7 +126,7 @@ async function run() {
           permanentAddress: user.permanentAddress,
           phone: user.phone,
           city: user.city,
-          picture:user.picture
+          picture: user.picture
         },
       };
       const result = await usersCollection.updateOne(
