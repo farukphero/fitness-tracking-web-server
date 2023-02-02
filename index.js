@@ -158,7 +158,7 @@ async function run() {
 
       res.send(result);
     });
-    app.put("/users/edit/:email", async (req, res) => {
+    app.patch("/users/edit/:email", async (req, res) => {
       const filter = { email: req.params.email };
       const user = req.body;
       const option = { upsert: true };
@@ -171,7 +171,9 @@ async function run() {
           permanentAddress: user.permanentAddress,
           phone: user.phone,
           city: user.city,
+ 
           picture: user.picture,
+ 
         },
       };
       const result = await usersCollection.updateOne(
@@ -187,12 +189,29 @@ async function run() {
       const result = await usersCollection.insertOne(user);
       res.send(result);
     });
+ 
+
+    // app.get("/services", async (req, res) => {
+      app.get("/users/:email", async (req, res) => {
+        const email = req.params.email;
+        const query = { email: email };
+        const result = await usersCollection.findOne(query);
+        res.send(result);
+      });
+
+      app.post("/users", async (req, res) => {
+        const user = req.body;
+        const result = await usersCollection.insertOne(user);
+        res.send(result);
+      });
+ 
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
       const result = await usersCollection.findOne(query);
       res.send(result);
     });
+ 
 
     app.post("/users", async (req, res) => {
       const user = req.body;
@@ -212,11 +231,16 @@ async function run() {
       res.send(services);
     });
 
+ 
+    //   res.send(services);
+    // });
+ 
     app.get("/foods", async (req, res) => {
       const query = {};
       const foods = await foodCollection.find(query).toArray();
       res.send(foods);
     });
+ 
 
     app.post(`/foods`, async (req, res) => {
       const food = req.body;
@@ -331,7 +355,8 @@ async function run() {
 
     app.get("/loggedFood/:email", async (req, res) => {
       const email = req.params.email;
-      const query = { userEmail: email };
+      const date = req.query.date;
+      const query = { userEmail: email, date: date};
       const loggedFood = await loggedFoodCollection.find(query).toArray();
       res.send(loggedFood);
     });
@@ -358,6 +383,25 @@ async function run() {
       );
       res.send(result);
     });
+ 
+
+    // delete favoriteFood
+    app.delete('/favoriteFood/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await favoriteFoodCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // delete loggedFood
+    app.delete('/loggedFood/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await loggedFoodCollection.deleteOne(query);
+      res.send(result);
+    });
+
+ 
   } finally {
   }
 }
