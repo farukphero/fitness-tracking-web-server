@@ -194,11 +194,17 @@ async function run() {
 
     app.post(`/activities`, async (req, res) => {
       const activity = req.body;
-      console.log(activity.activity_date);
       const result = await ActivitiesCollection.insertOne({
         ...activity,
         timestamp: new Date(activity.activity_date),
       });
+      res.send(result);
+    });
+
+    app.delete(`/activities/:id`, async (req, res) => {
+      const activity = req.params.id;
+      const query = { id: ObjectId(activity) };
+      const result = await ActivitiesCollection.deleteOne(query);
       res.send(result);
     });
 
