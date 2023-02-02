@@ -352,13 +352,14 @@ async function run() {
       const loggedFood = await loggedFoodCollection.find(query).toArray();
       res.send(loggedFood);
     });
+//  admin part start by faruk
     app.get("/users/admin/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
       const user = await usersCollection.findOne(query);
       res.send({ isAdmin: user?.role === "admin" });
     });
-
+ 
     app.put("/users/admin/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
@@ -375,7 +376,15 @@ async function run() {
       );
       res.send(result);
     });
- 
+
+    app.delete("/users/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await usersCollection.deleteOne(query);
+      res.send(result);
+    });
+//  admin part end 
+//  -----------------------------------------
 
     // delete favoriteFood
     app.delete('/favoriteFood/:id', async (req, res) => {
