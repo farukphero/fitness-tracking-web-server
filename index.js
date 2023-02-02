@@ -9,28 +9,40 @@ require("dotenv").config();
 app.use(cors());
 app.use(express.json());
 
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@clusterfit.lgaupy2.mongodb.net/?retryWrites=true&w=majority`;
-const client = new MongoClient(uri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverApi: ServerApiVersion.v1,
-});
+console.log(uri)
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+
+
+// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@clusterfit.lgaupy2.mongodb.net/?retryWrites=true&w=majority`;
+// const client = new MongoClient(uri, {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true, serverApi: ServerApiVersion.v1
+// });
 
 // eee
 async function run() {
   try {
-
+ 
     const UsersCollection = client.db("fitlessian").collection("User");
     const usersCollection = client.db("fitlessian").collection("User");
     const servicesCollection = client.db("fitlessian").collection("services");
     const FoodsCollection = client.db(`fitlessian`).collection(`foods`);
-    const ActivitiesCollection = client.db(`fitlessian`).collection(`Activities`);
+    const ActivitiesCollection = client
+      .db(`fitlessian`)
+      .collection(`Activities`);
     const foodCollection = client.db("fitlessian").collection("foods");
-    const loggedFoodCollection = client.db("fitlessian").collection("loggedFood");
+    const loggedFoodCollection = client
+      .db("fitlessian")
+      .collection("loggedFood");
     const tutorialCollection = client.db("fitlessian").collection("tutorials");
     const categoryCollection = client.db("fitlessian").collection("category");
-    const favoriteFoodCollection = client.db("fitlessian").collection("favouriteFood");
+    const favoriteFoodCollection = client
+      .db("fitlessian")
+      .collection("favouriteFood");
     const postCollection = client.db("fitlessian").collection("post");
+    const commentCollection = client.db("fitlessian").collection("comment");
 
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
@@ -46,18 +58,51 @@ async function run() {
       res.send(result);
     });
 
-    // userpost
+    // userpost rumel
     app.post("/post", async (req, res) => {
       const user = req.body;
       const result = await postCollection.insertOne(user);
       res.send(result);
     });
+    // postdata from mongodb rumel
     app.get("/post", async (req, res) => {
-      const user = {}
+      const user = {};
       const result = await postCollection.find(user).toArray();
       res.send(result);
     });
+    // postlike rumel
+    app.put('/post/:id', async (req, res) => {
+      const post = req.body;
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          liking: post?.like,
+          likeusersname: post?.username
+        }
+      }
+      const result = await postCollection.updateMany(filter, updateDoc, options)
+      res.send(result)
+    });
 
+
+    // comment rumel
+    app.post('/post/comment/:id', async (req, res) => {
+      const post = req.body;
+      console.log(post)
+      const result = await commentCollection.insertOne(post);
+      res.send(result);
+    })
+    // comment every post by all users rumel
+    app.get('/post/comment/:id', async (req, res) => {
+      const id = req.params.id
+      const query = {
+        commentId: id
+      }
+      const result = await commentCollection.find(query).toArray();
+      res.send(result);
+    })
     app.get("/services", async (req, res) => {
       const query = {};
       const services = await servicesCollection.find(query).toArray();
@@ -126,6 +171,9 @@ async function run() {
           permanentAddress: user.permanentAddress,
           phone: user.phone,
           city: user.city,
+ 
+          picture: user.picture,
+ 
         },
       };
       const result = await usersCollection.updateOne(
@@ -141,6 +189,7 @@ async function run() {
       const result = await usersCollection.insertOne(user);
       res.send(result);
     });
+ 
 
     // app.get("/services", async (req, res) => {
       app.get("/users/:email", async (req, res) => {
@@ -155,27 +204,43 @@ async function run() {
         const result = await usersCollection.insertOne(user);
         res.send(result);
       });
+ 
+    app.get("/users/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await usersCollection.findOne(query);
+      res.send(result);
+    });
+ 
 
-      app.get("/services", async (req, res) => {
-        const query = {};
-        const services = await servicesCollection.find(query).toArray();
-        res.send(services);
-      });
-      app.get("/users", async (req, res) => {
-        const query = {};
-        const services = await usersCollection.find(query).toArray();
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const result = await usersCollection.insertOne(user);
+      res.send(result);
+    });
 
-        res.send(services);
-      });
+    app.get("/services", async (req, res) => {
+      const query = {};
+      const services = await servicesCollection.find(query).toArray();
+      res.send(services);
+    });
+    app.get("/users", async (req, res) => {
+      const query = {};
+      const services = await usersCollection.find(query).toArray();
 
-      app.get("/foods", async (req, res) => {
-        const query = {};
-        const foods = await foodCollection.find(query).toArray();
-        res.send(foods);
-      });
+      res.send(services);
+    });
 
+ 
     //   res.send(services);
     // });
+ 
+    app.get("/foods", async (req, res) => {
+      const query = {};
+      const foods = await foodCollection.find(query).toArray();
+      res.send(foods);
+    });
+ 
 
     app.post(`/foods`, async (req, res) => {
       const food = req.body;
@@ -189,15 +254,81 @@ async function run() {
       res.send(result);
     });
 
+    // activities apis by @euhansarkar
+
     app.post(`/activities`, async (req, res) => {
       const activity = req.body;
-      const result = await ActivitiesCollection.insertOne(activity);
+      console.log(activity.activity_date);
+      const result = await ActivitiesCollection.insertOne({
+        ...activity,
+        timestamp: new Date(activity.activity_date),
+      });
       res.send(result);
     });
 
     app.get(`/activities`, async (req, res) => {
       const email = req.query.activist;
       const query = { activist: email };
+      const result = await ActivitiesCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // last 24 hour data
+
+    app.get(`/activities/1`, async (req, res) => {
+      const email = req.query.activist;
+      const query = {
+        activist: email,
+        timestamp: {
+          $lt: new Date(),
+          $gt: new Date(new Date().getTime() - 24 * 60 * 60 * 1000),
+        },
+      };
+      const result = await ActivitiesCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // last 7 days data
+
+    app.get(`/activities/7`, async (req, res) => {
+      const email = req.query.activist;
+      const query = {
+        activist: email,
+        timestamp: {
+          $lt: new Date(),
+          $gt: new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000),
+        },
+      };
+      const result = await ActivitiesCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // last 30 days data
+
+    app.get(`/activities/30`, async (req, res) => {
+      const email = req.query.activist;
+      const query = {
+        activist: email,
+        timestamp: {
+          $lt: new Date(),
+          $gt: new Date(new Date().getTime() - 30 * 24 * 60 * 60 * 1000),
+        },
+      };
+      const result = await ActivitiesCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // last 365 days data
+
+    app.get(`/activities/365`, async (req, res) => {
+      const email = req.query.activist;
+      const query = {
+        activist: email,
+        timestamp: {
+          $lt: new Date(),
+          $gt: new Date(new Date().getTime() - 365 * 24 * 60 * 60 * 1000),
+        },
+      };
       const result = await ActivitiesCollection.find(query).toArray();
       res.send(result);
     });
@@ -229,12 +360,12 @@ async function run() {
       const loggedFood = await loggedFoodCollection.find(query).toArray();
       res.send(loggedFood);
     });
-    app.get('/users/admin/:email', async (req, res) => {
+    app.get("/users/admin/:email", async (req, res) => {
       const email = req.params.email;
-      const query = { email: email }
+      const query = { email: email };
       const user = await usersCollection.findOne(query);
-      res.send({ isAdmin: user?.role === 'admin' })
-    })
+      res.send({ isAdmin: user?.role === "admin" });
+    });
 
     app.put("/users/admin/:id", async (req, res) => {
       const id = req.params.id;
@@ -252,6 +383,7 @@ async function run() {
       );
       res.send(result);
     });
+ 
 
     // delete favoriteFood
     app.delete('/favoriteFood/:id', async (req, res) => {
@@ -269,6 +401,7 @@ async function run() {
       res.send(result);
     });
 
+ 
   } finally {
   }
 }
