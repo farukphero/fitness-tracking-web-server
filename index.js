@@ -16,7 +16,7 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
-// eee
+
 async function run() {
   try {
 
@@ -31,7 +31,8 @@ async function run() {
     const categoryCollection = client.db("fitlessian").collection("category");
     const favoriteFoodCollection = client.db("fitlessian").collection("favouriteFood");
     const postCollection = client.db("fitlessian").collection("post");
-
+    const logedWeightCollection=client.db("fitlessian").collection("logedWeight");
+    const weightGoalCollection=client.db("fitlessian").collection("weightGoal");
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
@@ -68,14 +69,13 @@ async function run() {
       const services = await UsersCollection.find(query).toArray();
       res.send(services);
     });
-
+// Tutorial post (tahmina)
     app.post("/tutorial", async (req, res) => {
       const post = req.body;
       const result = await tutorialCollection.insertOne(post);
-      console.log(result);
       res.send(result);
     });
-
+// Get tutorial query by category (tahmina)
     app.get("/tutorials", async (req, res) => {
       const category = req.query.category;
       const query = {
@@ -86,20 +86,77 @@ async function run() {
       res.send(result);
     });
 
-    app.post("/category", async (req, res) => {
+    // post logedWeight (tahmina)
+    app.post("/logedWeight", async (req, res) => {
       const post = req.body;
-      const result = await categoryCollection.insertOne(post);
-      console.log(result);
+      const result = await logedWeightCollection.insertOne(post);
+      res.send(result);
+    });
+    // get logedWeight by email (tahmina)
+    app.get("/logedWeight", async (req, res) => {
+      const email = req.query.email;
+      const query = {
+        email: email,
+      };
+      const result =await logedWeightCollection.find(query).sort({_id:-1}).toArray();
       res.send(result);
     });
 
+    // delete logedWeight (tahmina)
+    app.delete('/logedWeight/:id',async(req,res)=>{
+      const id= req.params.id;
+      const query={_id:ObjectId(id)}
+      const result=await logedWeightCollection.deleteOne(query);
+      console.log(result)
+      res.send(result);
+    })
+
+
+  // weight goal update/ post by email (tahmina)
+  app.patch("/weightGoal/:email", async (req, res) => {
+    const filter = { email: req.params.email };
+    const user = req.body;
+    const option = { upsert: true };
+    const updatedUser = {
+      $set: {
+        expectedWeight:user.expectedWeight,
+        goalType:user.goalType,
+        email:user.email
+       
+      }
+    };
+    const result = await weightGoalCollection.updateOne(
+      filter,
+      updatedUser,
+      option
+    );
+    console.log(result);
+    res.send(result);
+  });
+// get expected weight (tahmina)
+  app.get("/weightGoal", async (req, res) => {
+    const email = req.query.email;
+    const query = {
+      email: email,
+    };
+    const result =await weightGoalCollection.find(query).toArray();
+    res.send(result);
+  });
+
+// tutorial category post(tahmina)
+    app.post("/category", async (req, res) => {
+      const post = req.body;
+      const result = await categoryCollection.insertOne(post);
+      res.send(result);
+    });
+// Category get bt id (tahmina)
     app.get("/singleCategory/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await categoryCollection.findOne(query);
       res.send(result);
     });
-
+// All category get (tahmina)
     app.get("/categories", async (req, res) => {
       const query = {};
       const categories = await categoryCollection.find(query).toArray();
@@ -113,6 +170,28 @@ async function run() {
 
       res.send(result);
     });
+
+    // only weight edit from log weight section (tahmina)
+    app.patch("/users/edit/:email", async (req, res) => {
+      const filter = { email: req.params.email };
+      const user = req.body;
+      const option = { upsert: true };
+      const updatedUser = {
+        $set: {
+          weight: user.weight,
+         
+        }
+      };
+      const result = await usersCollection.updateOne(
+        filter,
+        updatedUser,
+        option
+      );
+      res.send(result);
+    });
+    
+
+
     app.patch("/users/edit/:email", async (req, res) => {
       const filter = { email: req.params.email };
       const user = req.body;
@@ -125,7 +204,7 @@ async function run() {
           age: user.age,
           permanentAddress: user.permanentAddress,
           phone: user.phone,
-          city: user.city,
+          city: user.city
         },
       };
       const result = await usersCollection.updateOne(
@@ -252,10 +331,11 @@ async function run() {
       res.send(result);
     });
 
-  } finally {
+  }
+   finally{
   }
 }
-run();
+run().catch(err=>console.log(err));
 app.get("/", (req, res) => {
   res.send("Start fitlessian");
 });
