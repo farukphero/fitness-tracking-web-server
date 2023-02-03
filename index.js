@@ -42,12 +42,10 @@ async function run() {
       .db("fitlessian")
       .collection("favouriteFood");
     const postCollection = client.db("fitlessian").collection("post");
- 
     const logedWeightCollection=client.db("fitlessian").collection("logedWeight");
     const weightGoalCollection=client.db("fitlessian").collection("weightGoal");
- 
     const commentCollection = client.db("fitlessian").collection("comment");
-
+    const loggedWaterCollection = client.db("fitlessian").collection("loggedWater");
  
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
@@ -156,7 +154,7 @@ async function run() {
       const id= req.params.id;
       const query={_id:ObjectId(id)}
       const result=await logedWeightCollection.deleteOne(query);
-      console.log(result)
+      // console.log(result)
       res.send(result);
     })
 
@@ -179,7 +177,7 @@ async function run() {
       updatedUser,
       option
     );
-    console.log(result);
+    // console.log(result);
     res.send(result);
   });
 // get expected weight (tahmina)
@@ -216,7 +214,6 @@ async function run() {
       const email = req.params.email;
       const query = { email: email };
       const result = await servicesCollection.findOne(query);
-
       res.send(result);
     });
  
@@ -358,7 +355,7 @@ async function run() {
 
     app.post(`/activities`, async (req, res) => {
       const activity = req.body;
-      console.log(activity.activity_date);
+      // console.log(activity.activity_date);
       const result = await ActivitiesCollection.insertOne({
         ...activity,
         timestamp: new Date(activity.activity_date),
