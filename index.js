@@ -245,6 +245,27 @@ async function run() {
       const result = await FoodsCollection.find(food).toArray();
       res.send(result);
     });
+    // post water
+    app.post("/loggedWater", async (req, res) => {
+      const loggedWater = req.body;
+      const result = await loggedWaterCollection.insertOne(loggedWater);
+      res.send(result);
+    });
+    // get logged water
+    app.get("/loggedWater/:email", async (req, res) => {
+      const email = req.params.email;
+      const date = req.query.date;
+      const query = { email: email, date: date};
+      const loggedWater = await loggedWaterCollection.find(query).toArray();
+      res.send(loggedWater);
+    });
+    // delete loged water
+    app.delete('/loggedWater/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await loggedWaterCollection.deleteOne(query);
+      res.send(result);
+    });
 
     // activities apis by @euhansarkar
 
