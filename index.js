@@ -507,7 +507,25 @@ async function run() {
       res.send(result);
     });
 
+ 
+    app.get("/favouriteFoods/:name", async (req, res) => {
+      const name = req.params.name;
+      const query = { name: name };
+      const favoriteFood = await foodCollection.find(query).toArray();
+      res.send(favoriteFood);
+    });
 
+    app.get("/foods/seven/:email", async (req, res) => {
+      const email = req.params.email;
+      const currentDate = new Date();
+      const sevenDaysAgo = new Date(currentDate - 7 * 24 * 60 * 60 * 1000);
+      const sevenDaysAgoDateOnly = sevenDaysAgo.toLocaleDateString();
+      const food = await loggedFoodCollection.find({ date: { $gte: sevenDaysAgoDateOnly }, userEmail: email }).toArray();
+      res.send(food);
+    });
+
+ 
+ 
   } finally {
 
   }
