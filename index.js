@@ -11,7 +11,6 @@ app.use(express.json());
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@clusterfit.lgaupy2.mongodb.net/?retryWrites=true&w=majority`;
-console.log(uri)
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
@@ -148,6 +147,7 @@ async function run() {
       const result = await logedWeightCollection.insertOne(post);
       res.send(result);
     });
+    
     // get logedWeight by email (tahmina)
     app.get("/logedWeight", async (req, res) => {
       const email = req.query.email;
@@ -158,6 +158,44 @@ async function run() {
       res.send(result);
     });
 
+ 
+
+  // weight goal update/ post by email (tahmina)
+  app.patch("/weightGoal/:email", async (req, res) => {
+    const filter = { email: req.params.email };
+    const user = req.body;
+    const option = { upsert: true };
+    const updatedUser = {
+      $set: {
+        expectedWeight:user.expectedWeight,
+        goalType:user.goalType,
+        email:user.email,
+        days:user.days,
+        date:user.date
+       
+      }
+    };
+    const result = await weightGoalCollection.updateOne(
+      filter,
+      updatedUser,
+      option
+    );
+    console.log(result)
+    res.send(result);
+  });
+
+// get expected weight (tahmina)
+  app.get("/weightGoal", async (req, res) => {
+    const email = req.query.email;
+    const query = {
+      email: email,
+    };
+    const result =await weightGoalCollection.find(query).toArray();
+    res.send(result);
+  });
+
+// tutorial category post(tahmina)
+ 
     // delete logedWeight (tahmina)
     app.delete('/logedWeight/:id', async (req, res) => {
       const id = req.params.id;
@@ -167,39 +205,12 @@ async function run() {
       res.send(result);
     })
 
-
-    // weight goal update/ post by email (tahmina)
-    app.patch("/weightGoal/:email", async (req, res) => {
-      const filter = { email: req.params.email };
-      const user = req.body;
-      const option = { upsert: true };
-      const updatedUser = {
-        $set: {
-          expectedWeight: user.expectedWeight,
-          goalType: user.goalType,
-          email: user.email
-
-        }
-      };
-      const result = await weightGoalCollection.updateOne(
-        filter,
-        updatedUser,
-        option
-      );
-      // console.log(result);
-      res.send(result);
-    });
-    // get expected weight (tahmina)
-    app.get("/weightGoal", async (req, res) => {
-      const email = req.query.email;
-      const query = {
-        email: email,
-      };
-      const result = await weightGoalCollection.find(query).toArray();
-      res.send(result);
-    });
+ 
+ 
+  
 
     // tutorial category post(tahmina)
+ 
     app.post("/category", async (req, res) => {
       const post = req.body;
       const result = await categoryCollection.insertOne(post);
@@ -225,30 +236,9 @@ async function run() {
       const result = await servicesCollection.findOne(query);
       res.send(result);
     });
-
-
-    // only weight edit from log weight section (tahmina)
-    app.patch("/users/edit/:email", async (req, res) => {
-      const filter = { email: req.params.email };
-      const user = req.body;
-      const option = { upsert: true };
-      const updatedUser = {
-        $set: {
-          weight: user.weight,
-
-        }
-      };
-      const result = await usersCollection.updateOne(
-        filter,
-        updatedUser,
-        option
-      );
-      res.send(result);
-    });
-
-
-
-
+ 
+ 
+ 
     app.put("/users/edit/:email", async (req, res) => {
 
       const filter = { email: req.params.email };
