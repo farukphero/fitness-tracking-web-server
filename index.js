@@ -11,7 +11,6 @@ app.use(express.json());
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@clusterfit.lgaupy2.mongodb.net/?retryWrites=true&w=majority`;
-console.log(uri)
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
@@ -139,6 +138,7 @@ async function run() {
       const result = await logedWeightCollection.insertOne(post);
       res.send(result);
     });
+    
     // get logedWeight by email (tahmina)
     app.get("/logedWeight", async (req, res) => {
       const email = req.query.email;
@@ -148,15 +148,6 @@ async function run() {
       const result =await logedWeightCollection.find(query).sort({_id:-1}).toArray();
       res.send(result);
     });
-
-    // delete logedWeight (tahmina)
-    app.delete('/logedWeight/:id',async(req,res)=>{
-      const id= req.params.id;
-      const query={_id:ObjectId(id)}
-      const result=await logedWeightCollection.deleteOne(query);
-      // console.log(result)
-      res.send(result);
-    })
 
 
   // weight goal update/ post by email (tahmina)
@@ -168,7 +159,9 @@ async function run() {
       $set: {
         expectedWeight:user.expectedWeight,
         goalType:user.goalType,
-        email:user.email
+        email:user.email,
+        days:user.days,
+        date:user.date
        
       }
     };
@@ -177,9 +170,10 @@ async function run() {
       updatedUser,
       option
     );
-    // console.log(result);
+    console.log(result)
     res.send(result);
   });
+
 // get expected weight (tahmina)
   app.get("/weightGoal", async (req, res) => {
     const email = req.query.email;
@@ -216,30 +210,8 @@ async function run() {
       const result = await servicesCollection.findOne(query);
       res.send(result);
     });
- 
-
-    // only weight edit from log weight section (tahmina)
-    app.patch("/users/edit/:email", async (req, res) => {
-      const filter = { email: req.params.email };
-      const user = req.body;
-      const option = { upsert: true };
-      const updatedUser = {
-        $set: {
-          weight: user.weight,
-         
-        }
-      };
-      const result = await usersCollection.updateOne(
-        filter,
-        updatedUser,
-        option
-      );
-      res.send(result);
-    });
-    
 
 
- 
     app.put("/users/edit/:email", async (req, res) => {
  
       const filter = { email: req.params.email };
