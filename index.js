@@ -9,10 +9,12 @@ require("dotenv").config();
 app.use(cors());
 app.use(express.json());
 
-
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@clusterfit.lgaupy2.mongodb.net/?retryWrites=true&w=majority`;
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-
+const client = new MongoClient(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverApi: ServerApiVersion.v1,
+});
 
 // const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@clusterfit.lgaupy2.mongodb.net/?retryWrites=true&w=majority`;
 // const client = new MongoClient(uri, {
@@ -20,12 +22,10 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 //   useUnifiedTopology: true, serverApi: ServerApiVersion.v1
 // });
 
-
 async function run() {
   try {
- 
     // const UsersCollection = client.db("fitlessian").collection("User");
-    const UsersCollection = client.db("fitlessian").collection("User");
+    // const usersCollection = client.db("fitlessian").collection("User");
     const usersCollection = client.db("fitlessian").collection("User");
     const servicesCollection = client.db("fitlessian").collection("services");
     const FoodsCollection = client.db(`fitlessian`).collection(`foods`);
@@ -42,23 +42,32 @@ async function run() {
       .db("fitlessian")
       .collection("favouriteFood");
     const postCollection = client.db("fitlessian").collection("post");
-    const logedWeightCollection = client.db("fitlessian").collection("logedWeight");
-    const weightGoalCollection = client.db("fitlessian").collection("weightGoal");
+    const logedWeightCollection = client
+      .db("fitlessian")
+      .collection("logedWeight");
+    const weightGoalCollection = client
+      .db("fitlessian")
+      .collection("weightGoal");
     const commentCollection = client.db("fitlessian").collection("comment");
-    const loggedWaterCollection = client.db("fitlessian").collection("loggedWater");
+    const loggedWaterCollection = client
+      .db("fitlessian")
+      .collection("loggedWater");
     const questionsCollection = client.db("fitlessian").collection("questions");
+    // const friendsCollection = client.db("fitlessian").collection("friends");
+    const sendRequestCollection = client.db("fitlessian").collection("friendRequest");
 
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
-      const result = await UsersCollection.findOne(query);
+      const result = await usersCollection.findOne(query);
       res.send(result);
       // console.log(result)
     });
+    
 
     app.post("/users", async (req, res) => {
       const user = req.body;
-      const result = await UsersCollection.insertOne(user);
+      const result = await usersCollection.insertOne(user);
       res.send(result);
     });
 
@@ -75,7 +84,7 @@ async function run() {
       res.send(result);
     });
     // postlike rumel
-    app.put('/post/:id', async (req, res) => {
+    app.put("/post/:id", async (req, res) => {
       const post = req.body;
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
@@ -83,37 +92,40 @@ async function run() {
       const updateDoc = {
         $set: {
           liking: post?.like,
-          likeusersname: post?.username
-        }
-      }
-      const result = await postCollection.updateMany(filter, updateDoc, options)
-      res.send(result)
+          likeusersname: post?.username,
+        },
+      };
+      const result = await postCollection.updateMany(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
     });
 
-
     // questions rumel
-    app.post('/questions', async (req, res) => {
+    app.post("/questions", async (req, res) => {
       const post = req.body;
-      console.log(post)
+      console.log(post);
       const result = await questionsCollection.insertOne(post);
       res.send(result);
-    })
+    });
     // comment rumel
-    app.post('/post/comment/:id', async (req, res) => {
+    app.post("/post/comment/:id", async (req, res) => {
       const post = req.body;
-      console.log(post)
+      console.log(post);
       const result = await commentCollection.insertOne(post);
       res.send(result);
-    })
+    });
     // comment every post by all users rumel
-    app.get('/post/comment/:id', async (req, res) => {
-      const id = req.params.id
+    app.get("/post/comment/:id", async (req, res) => {
+      const id = req.params.id;
       const query = {
-        commentId: id
-      }
+        commentId: id,
+      };
       const result = await commentCollection.find(query).toArray();
       res.send(result);
-    })
+    });
     app.get("/services", async (req, res) => {
       const query = {};
       const services = await servicesCollection.find(query).toArray();
@@ -121,7 +133,7 @@ async function run() {
     });
     app.get("/users", async (req, res) => {
       const query = {};
-      const services = await UsersCollection.find(query).toArray();
+      const services = await usersCollection.find(query).toArray();
       res.send(services);
     });
     // Tutorial post (tahmina)
@@ -147,70 +159,66 @@ async function run() {
       const result = await logedWeightCollection.insertOne(post);
       res.send(result);
     });
-    
+
     // get logedWeight by email (tahmina)
     app.get("/logedWeight", async (req, res) => {
       const email = req.query.email;
       const query = {
         email: email,
       };
-      const result = await logedWeightCollection.find(query).sort({ _id: -1 }).toArray();
+      const result = await logedWeightCollection
+        .find(query)
+        .sort({ _id: -1 })
+        .toArray();
       res.send(result);
     });
 
- 
+    // weight goal update/ post by email (tahmina)
+    app.patch("/weightGoal/:email", async (req, res) => {
+      const filter = { email: req.params.email };
+      const user = req.body;
+      const option = { upsert: true };
+      const updatedUser = {
+        $set: {
+          expectedWeight: user.expectedWeight,
+          goalType: user.goalType,
+          email: user.email,
+          days: user.days,
+          date: user.date,
+        },
+      };
+      const result = await weightGoalCollection.updateOne(
+        filter,
+        updatedUser,
+        option
+      );
+      console.log(result);
+      res.send(result);
+    });
 
-  // weight goal update/ post by email (tahmina)
-  app.patch("/weightGoal/:email", async (req, res) => {
-    const filter = { email: req.params.email };
-    const user = req.body;
-    const option = { upsert: true };
-    const updatedUser = {
-      $set: {
-        expectedWeight:user.expectedWeight,
-        goalType:user.goalType,
-        email:user.email,
-        days:user.days,
-        date:user.date
-       
-      }
-    };
-    const result = await weightGoalCollection.updateOne(
-      filter,
-      updatedUser,
-      option
-    );
-    console.log(result)
-    res.send(result);
-  });
+    // get expected weight (tahmina)
+    app.get("/weightGoal", async (req, res) => {
+      const email = req.query.email;
+      const query = {
+        email: email,
+      };
+      const result = await weightGoalCollection.find(query).toArray();
+      res.send(result);
+    });
 
-// get expected weight (tahmina)
-  app.get("/weightGoal", async (req, res) => {
-    const email = req.query.email;
-    const query = {
-      email: email,
-    };
-    const result =await weightGoalCollection.find(query).toArray();
-    res.send(result);
-  });
+    // tutorial category post(tahmina)
 
-// tutorial category post(tahmina)
- 
     // delete logedWeight (tahmina)
-    app.delete('/logedWeight/:id', async (req, res) => {
+    app.delete("/logedWeight/:id", async (req, res) => {
       const id = req.params.id;
-      const query = { _id: ObjectId(id) }
+      const query = { _id: ObjectId(id) };
       const result = await logedWeightCollection.deleteOne(query);
       // console.log(result)
       res.send(result);
-    })
-
- 
- 
-  
+    });
 
     // tutorial category post(tahmina)
- 
+
     app.post("/category", async (req, res) => {
       const post = req.body;
       const result = await categoryCollection.insertOne(post);
@@ -236,11 +244,8 @@ async function run() {
       const result = await servicesCollection.findOne(query);
       res.send(result);
     });
- 
- 
- 
-    app.put("/users/edit/:email", async (req, res) => {
 
+    app.put("/users/edit/:email", async (req, res) => {
       const filter = { email: req.params.email };
       const user = req.body;
       const option = { upsert: true };
@@ -254,8 +259,6 @@ async function run() {
           phone: user.phone,
           city: user.city,
           picture: user.picture,
-
-
         },
       };
       const result = await usersCollection.updateOne(
@@ -266,11 +269,6 @@ async function run() {
       res.send(result);
     });
 
-    app.post("/users", async (req, res) => {
-      const user = req.body;
-      const result = await usersCollection.insertOne(user);
-      res.send(result);
-    });
 
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
@@ -291,7 +289,6 @@ async function run() {
       const result = await usersCollection.findOne(query);
       res.send(result);
     });
-
 
     app.post("/users", async (req, res) => {
       const user = req.body;
@@ -307,7 +304,6 @@ async function run() {
     app.get("/users", async (req, res) => {
       const query = {};
       const services = await usersCollection.find(query).toArray();
-
       res.send(services);
     });
     app.get("/foods", async (req, res) => {
@@ -315,7 +311,6 @@ async function run() {
       const foods = await foodCollection.find(query).toArray();
       res.send(foods);
     });
-
 
     app.post(`/foods`, async (req, res) => {
       const food = req.body;
@@ -343,7 +338,7 @@ async function run() {
       res.send(loggedWater);
     });
     // delete loged water
-    app.delete('/loggedWater/:id', async (req, res) => {
+    app.delete("/loggedWater/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await loggedWaterCollection.deleteOne(query);
@@ -481,19 +476,17 @@ async function run() {
       res.send(result);
     });
 
-
-
     app.delete("/users/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await usersCollection.deleteOne(query);
       res.send(result);
     });
-    //  admin part end 
+    //  admin part end
     //  -----------------------------------------
 
     // delete favoriteFood
-    app.delete('/favoriteFood/:id', async (req, res) => {
+    app.delete("/favoriteFood/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await favoriteFoodCollection.deleteOne(query);
@@ -501,14 +494,13 @@ async function run() {
     });
 
     // delete loggedFood
-    app.delete('/loggedFood/:id', async (req, res) => {
+    app.delete("/loggedFood/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await loggedFoodCollection.deleteOne(query);
       res.send(result);
     });
 
- 
     app.get("/favouriteFoods/:name", async (req, res) => {
       const name = req.params.name;
       const query = { name: name };
@@ -521,17 +513,27 @@ async function run() {
       const currentDate = new Date();
       const sevenDaysAgo = new Date(currentDate - 7 * 24 * 60 * 60 * 1000);
       const sevenDaysAgoDateOnly = sevenDaysAgo.toLocaleDateString();
-      const food = await loggedFoodCollection.find({ date: { $gte: sevenDaysAgoDateOnly }, userEmail: email }).toArray();
+      const food = await loggedFoodCollection
+        .find({ date: { $gte: sevenDaysAgoDateOnly }, userEmail: email })
+        .toArray();
       res.send(food);
     });
+    //  send request
+    app.get("/usersWithoutPresent", async (req, res) => {
+      const email = req.query.email;
+      const result = await usersCollection.find({email: {$nin : [email]}}).toArray();
+      res.send(result);
+    });
+    app.post("/friendRequest", async (req, res) => {
+      const friend = req.body;
+      const result = await sendRequestCollection.insertOne(friend);
+      res.send(result);
+    });
 
- 
- 
   } finally {
-
   }
 }
-run().catch(err => console.log(err));
+run().catch((err) => console.log(err));
 app.get("/", (req, res) => {
   res.send("Start fitlessian");
 });
