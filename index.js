@@ -26,6 +26,7 @@ async function run() {
   try {
  
     // const UsersCollection = client.db("fitlessian").collection("User");
+    const UsersCollection = client.db("fitlessian").collection("User");
     const usersCollection = client.db("fitlessian").collection("User");
     const servicesCollection = client.db("fitlessian").collection("services");
     const FoodsCollection = client.db(`fitlessian`).collection(`foods`);
@@ -42,11 +43,12 @@ async function run() {
       .db("fitlessian")
       .collection("favouriteFood");
     const postCollection = client.db("fitlessian").collection("post");
-    const logedWeightCollection=client.db("fitlessian").collection("logedWeight");
-    const weightGoalCollection=client.db("fitlessian").collection("weightGoal");
+    const logedWeightCollection = client.db("fitlessian").collection("logedWeight");
+    const weightGoalCollection = client.db("fitlessian").collection("weightGoal");
     const commentCollection = client.db("fitlessian").collection("comment");
     const loggedWaterCollection = client.db("fitlessian").collection("loggedWater");
- 
+    const questionsCollection = client.db("fitlessian").collection("questions");
+
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
@@ -90,6 +92,13 @@ async function run() {
     });
 
 
+    // questions rumel
+    app.post('/questions', async (req, res) => {
+      const post = req.body;
+      console.log(post)
+      const result = await questionsCollection.insertOne(post);
+      res.send(result);
+    })
     // comment rumel
     app.post('/post/comment/:id', async (req, res) => {
       const post = req.body;
@@ -116,13 +125,13 @@ async function run() {
       const services = await UsersCollection.find(query).toArray();
       res.send(services);
     });
-// Tutorial post (tahmina)
+    // Tutorial post (tahmina)
     app.post("/tutorial", async (req, res) => {
       const post = req.body;
       const result = await tutorialCollection.insertOne(post);
       res.send(result);
     });
-// Get tutorial query by category (tahmina)
+    // Get tutorial query by category (tahmina)
     app.get("/tutorials", async (req, res) => {
       const category = req.query.category;
       const query = {
@@ -145,65 +154,65 @@ async function run() {
       const query = {
         email: email,
       };
-      const result =await logedWeightCollection.find(query).sort({_id:-1}).toArray();
+      const result = await logedWeightCollection.find(query).sort({ _id: -1 }).toArray();
       res.send(result);
     });
 
     // delete logedWeight (tahmina)
-    app.delete('/logedWeight/:id',async(req,res)=>{
-      const id= req.params.id;
-      const query={_id:ObjectId(id)}
-      const result=await logedWeightCollection.deleteOne(query);
+    app.delete('/logedWeight/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) }
+      const result = await logedWeightCollection.deleteOne(query);
       // console.log(result)
       res.send(result);
     })
 
 
-  // weight goal update/ post by email (tahmina)
-  app.patch("/weightGoal/:email", async (req, res) => {
-    const filter = { email: req.params.email };
-    const user = req.body;
-    const option = { upsert: true };
-    const updatedUser = {
-      $set: {
-        expectedWeight:user.expectedWeight,
-        goalType:user.goalType,
-        email:user.email
-       
-      }
-    };
-    const result = await weightGoalCollection.updateOne(
-      filter,
-      updatedUser,
-      option
-    );
-    // console.log(result);
-    res.send(result);
-  });
-// get expected weight (tahmina)
-  app.get("/weightGoal", async (req, res) => {
-    const email = req.query.email;
-    const query = {
-      email: email,
-    };
-    const result =await weightGoalCollection.find(query).toArray();
-    res.send(result);
-  });
+    // weight goal update/ post by email (tahmina)
+    app.patch("/weightGoal/:email", async (req, res) => {
+      const filter = { email: req.params.email };
+      const user = req.body;
+      const option = { upsert: true };
+      const updatedUser = {
+        $set: {
+          expectedWeight: user.expectedWeight,
+          goalType: user.goalType,
+          email: user.email
 
-// tutorial category post(tahmina)
+        }
+      };
+      const result = await weightGoalCollection.updateOne(
+        filter,
+        updatedUser,
+        option
+      );
+      // console.log(result);
+      res.send(result);
+    });
+    // get expected weight (tahmina)
+    app.get("/weightGoal", async (req, res) => {
+      const email = req.query.email;
+      const query = {
+        email: email,
+      };
+      const result = await weightGoalCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // tutorial category post(tahmina)
     app.post("/category", async (req, res) => {
       const post = req.body;
       const result = await categoryCollection.insertOne(post);
       res.send(result);
     });
-// Category get bt id (tahmina)
+    // Category get bt id (tahmina)
     app.get("/singleCategory/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await categoryCollection.findOne(query);
       res.send(result);
     });
-// All category get (tahmina)
+    // All category get (tahmina)
     app.get("/categories", async (req, res) => {
       const query = {};
       const categories = await categoryCollection.find(query).toArray();
@@ -216,7 +225,7 @@ async function run() {
       const result = await servicesCollection.findOne(query);
       res.send(result);
     });
- 
+
 
     // only weight edit from log weight section (tahmina)
     app.patch("/users/edit/:email", async (req, res) => {
@@ -226,7 +235,7 @@ async function run() {
       const updatedUser = {
         $set: {
           weight: user.weight,
-         
+
         }
       };
       const result = await usersCollection.updateOne(
@@ -236,12 +245,12 @@ async function run() {
       );
       res.send(result);
     });
-    
 
 
- 
+
+
     app.put("/users/edit/:email", async (req, res) => {
- 
+
       const filter = { email: req.params.email };
       const user = req.body;
       const option = { upsert: true };
@@ -255,8 +264,8 @@ async function run() {
           phone: user.phone,
           city: user.city,
           picture: user.picture,
- 
- 
+
+
         },
       };
       const result = await usersCollection.updateOne(
@@ -272,27 +281,27 @@ async function run() {
       const result = await usersCollection.insertOne(user);
       res.send(result);
     });
- 
-      app.get("/users/:email", async (req, res) => {
-        const email = req.params.email;
-        const query = { email: email };
-        const result = await usersCollection.findOne(query);
-        res.send(result);
-      });
 
-      app.post("/users", async (req, res) => {
-        const user = req.body;
-        const result = await usersCollection.insertOne(user);
-        res.send(result);
-      });
- 
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
       const result = await usersCollection.findOne(query);
       res.send(result);
     });
- 
+
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const result = await usersCollection.insertOne(user);
+      res.send(result);
+    });
+
+    app.get("/users/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await usersCollection.findOne(query);
+      res.send(result);
+    });
+
 
     app.post("/users", async (req, res) => {
       const user = req.body;
@@ -316,7 +325,7 @@ async function run() {
       const foods = await foodCollection.find(query).toArray();
       res.send(foods);
     });
- 
+
 
     app.post(`/foods`, async (req, res) => {
       const food = req.body;
@@ -339,7 +348,7 @@ async function run() {
     app.get("/loggedWater/:email", async (req, res) => {
       const email = req.params.email;
       const date = req.query.date;
-      const query = { email: email, date: date};
+      const query = { email: email, date: date };
       const loggedWater = await loggedWaterCollection.find(query).toArray();
       res.send(loggedWater);
     });
@@ -453,18 +462,18 @@ async function run() {
     app.get("/loggedFood/:email", async (req, res) => {
       const email = req.params.email;
       const date = req.query.date;
-      const query = { userEmail: email, date: date};
+      const query = { userEmail: email, date: date };
       const loggedFood = await loggedFoodCollection.find(query).toArray();
       res.send(loggedFood);
     });
-//  admin part start by faruk
+    //  admin part start by faruk
     app.get("/users/admin/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
       const user = await usersCollection.findOne(query);
       res.send({ isAdmin: user?.role === "admin" });
     });
- 
+
     app.put("/users/admin/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
@@ -481,17 +490,17 @@ async function run() {
       );
       res.send(result);
     });
- 
-   
- 
+
+
+
     app.delete("/users/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await usersCollection.deleteOne(query);
       res.send(result);
     });
-//  admin part end 
-//  -----------------------------------------
+    //  admin part end 
+    //  -----------------------------------------
 
     // delete favoriteFood
     app.delete('/favoriteFood/:id', async (req, res) => {
@@ -509,12 +518,12 @@ async function run() {
       res.send(result);
     });
 
- 
+
   } finally {
- 
+
   }
 }
-run().catch(err=>console.log(err));
+run().catch(err => console.log(err));
 app.get("/", (req, res) => {
   res.send("Start fitlessian");
 });
