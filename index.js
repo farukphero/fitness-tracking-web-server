@@ -9,6 +9,9 @@ require("dotenv").config();
 app.use(cors());
 app.use(express.json());
 
+
+
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@clusterfit.lgaupy2.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -68,8 +71,21 @@ async function run() {
     app.post("/users", async (req, res) => {
       const user = req.body;
       const result = await usersCollection.insertOne(user);
+      // console.log(result)
       res.send(result);
     });
+
+
+    app.post("/user/:email",async(req,res)=>{
+      const email = req.params.email;
+      // const dd=req.body;
+      console.log(email)
+      // const query = { email: email };
+      // const result = await usersCollection.findOne(query).sendFrom.insertOne(dd);
+
+      // res.send(result);
+    })
+
 
     // userpost rumel
     app.post("/post", async (req, res) => {
@@ -131,11 +147,13 @@ async function run() {
       const services = await servicesCollection.find(query).toArray();
       res.send(services);
     });
+
     app.get("/users", async (req, res) => {
       const query = {};
       const services = await usersCollection.find(query).toArray();
       res.send(services);
     });
+
     // Tutorial post (tahmina)
     app.post("/tutorial", async (req, res) => {
       const post = req.body;
@@ -206,7 +224,6 @@ async function run() {
       res.send(result);
     });
 
-    // tutorial category post(tahmina)
 
     // delete logedWeight (tahmina)
     app.delete("/logedWeight/:id", async (req, res) => {
@@ -537,6 +554,11 @@ run().catch((err) => console.log(err));
 app.get("/", (req, res) => {
   res.send("Start fitlessian");
 });
+
+
+
+
+
 app.listen(port, () => {
   console.log(`this server is running on ${port}`);
 });
