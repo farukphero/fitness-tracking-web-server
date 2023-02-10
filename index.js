@@ -16,16 +16,9 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
-// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@clusterfit.lgaupy2.mongodb.net/?retryWrites=true&w=majority`;
-// const client = new MongoClient(uri, {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true, serverApi: ServerApiVersion.v1
-// });
-
 async function run() {
   try {
-    // const UsersCollection = client.db("fitlessian").collection("User");
-    // const usersCollection = client.db("fitlessian").collection("User");
+    
     const usersCollection = client.db("fitlessian").collection("User");
     const servicesCollection = client.db("fitlessian").collection("services");
     const FoodsCollection = client.db(`fitlessian`).collection(`foods`);
@@ -360,7 +353,7 @@ async function run() {
     app.get(`/activities`, async (req, res) => {
       const email = req.query.activist;
       const query = { activist: email };
-      const result = await ActivitiesCollection.find(query).toArray();
+      const result = await ActivitiesCollection.find(query).limit(3).sort({ _id: -1 }).toArray();
       res.send(result);
     });
 
