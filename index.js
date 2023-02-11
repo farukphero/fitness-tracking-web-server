@@ -529,15 +529,39 @@ async function run() {
       res.send(food);
     });
     //  send request
-    app.get("/usersWithoutPresent", async (req, res) => {
-      const email = req.query.email;
-      const result = await usersCollection.find({email: {$nin : [email]}}).toArray();
-      res.send(result);
-    });
+    // app.get("/usersWithoutPresent", async (req, res) => {
+    //   const email = req.query.email;
+    //   const result = await usersCollection.find({email: {$nin : [email]}}).toArray();
+    //   res.send(result);
+    // });
+    
+    // send and accept friend request by faruk
+
     app.post("/friendRequest", async (req, res) => {
       const friend = req.body;
       const result = await sendRequestCollection.insertOne(friend);
-      res.send(result);
+      const sendFrom = friend.senderEmail;
+      const sendTo = friend.receiverEmail;
+      const updateSendTo = await usersCollection.updateOne({email:sendFrom},{$addToSet:{sendTo:sendTo}})
+      const updateSendFrom = await usersCollection.updateOne({email:sendTo},{$addToSet:{sendFrom:sendFrom}})
+      res.send(updateSendFrom);
+    });
+    app.post("/cancelFriendRequest", async (req, res) => {
+      const friend = req.body;
+      // const result = await sendRequestCollection.insertOne(friend);
+      const sendFrom = friend.senderEmail;
+      const sendTo = friend.receiverEmail;
+      const cancelSendTo = await usersCollection.updateOne({email:sendFrom},{$pull:{sendTo:sendTo}})
+      const cancelSendFrom = await usersCollection.updateOne({email:sendTo},{$pull:{sendFrom:sendFrom}})
+      res.send(cancelSendFrom);
+    });
+    app.post("/acceptFriendRequest", async (req, res) => {
+      const friend = req.body;
+      const sendFrom = friend.senderEmail;
+      const sendTo = friend.receiverEmail;
+      const acceptSendFrom = await usersCollection.updateOne({email:sendTo},{$push:{newFriend:sendFrom}} &&{$set:{accepted: "true"}})
+      const acceptSendTo = await usersCollection.updateOne({email:sendFrom},{$push:{newFriend:sendTo}} && {$set:{accepted: "true"}})
+      res.send(acceptSendTo);
     });
 
   } finally {
