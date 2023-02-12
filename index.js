@@ -9,9 +9,6 @@ require("dotenv").config();
 app.use(cors());
 app.use(express.json());
 
-
-
-
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@clusterfit.lgaupy2.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -21,7 +18,6 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    
     const usersCollection = client.db("fitlessian").collection("User");
     const servicesCollection = client.db("fitlessian").collection("services");
     const FoodsCollection = client.db(`fitlessian`).collection(`foods`);
@@ -50,7 +46,9 @@ async function run() {
       .collection("loggedWater");
     const questionsCollection = client.db("fitlessian").collection("questions");
     // const friendsCollection = client.db("fitlessian").collection("friends");
-    const sendRequestCollection = client.db("fitlessian").collection("friendRequest");
+    const sendRequestCollection = client
+      .db("fitlessian")
+      .collection("friendRequest");
 
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
@@ -59,7 +57,6 @@ async function run() {
       res.send(result);
       // console.log(result)
     });
-    
 
     app.post("/users", async (req, res) => {
       const user = req.body;
@@ -68,17 +65,15 @@ async function run() {
       res.send(result);
     });
 
-
-    app.post("/user/:email",async(req,res)=>{
+    app.post("/user/:email", async (req, res) => {
       const email = req.params.email;
       // const dd=req.body;
-      console.log(email)
+      console.log(email);
       // const query = { email: email };
       // const result = await usersCollection.findOne(query).sendFrom.insertOne(dd);
 
       // res.send(result);
-    })
-
+    });
 
     // userpost rumel
     app.post("/post", async (req, res) => {
@@ -217,7 +212,6 @@ async function run() {
       res.send(result);
     });
 
-
     // delete logedWeight (tahmina)
     app.delete("/logedWeight/:id", async (req, res) => {
       const id = req.params.id;
@@ -278,7 +272,6 @@ async function run() {
       );
       res.send(result);
     });
-
 
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
@@ -370,7 +363,10 @@ async function run() {
     app.get(`/activities`, async (req, res) => {
       const email = req.query.activist;
       const query = { activist: email };
-      const result = await ActivitiesCollection.find(query).limit(3).sort({ _id: -1 }).toArray();
+      const result = await ActivitiesCollection.find(query)
+        .limit(3)
+        .sort({ _id: -1 })
+        .toArray();
       res.send(result);
     });
 
@@ -534,7 +530,7 @@ async function run() {
     //   const result = await usersCollection.find({email: {$nin : [email]}}).toArray();
     //   res.send(result);
     // });
-    
+
     // send and accept friend request by faruk
 
     app.post("/friendRequest", async (req, res) => {
@@ -542,8 +538,14 @@ async function run() {
       const result = await sendRequestCollection.insertOne(friend);
       const sendFrom = friend.senderEmail;
       const sendTo = friend.receiverEmail;
-      const updateSendTo = await usersCollection.updateOne({email:sendFrom},{$addToSet:{sendTo:sendTo}})
-      const updateSendFrom = await usersCollection.updateOne({email:sendTo},{$addToSet:{sendFrom:sendFrom}})
+      const updateSendTo = await usersCollection.updateOne(
+        { email: sendFrom },
+        { $addToSet: { sendTo: sendTo } }
+      );
+      const updateSendFrom = await usersCollection.updateOne(
+        { email: sendTo },
+        { $addToSet: { sendFrom: sendFrom } }
+      );
       res.send(updateSendFrom);
     });
     app.post("/cancelFriendRequest", async (req, res) => {
@@ -551,19 +553,47 @@ async function run() {
       // const result = await sendRequestCollection.insertOne(friend);
       const sendFrom = friend.senderEmail;
       const sendTo = friend.receiverEmail;
-      const cancelSendTo = await usersCollection.updateOne({email:sendFrom},{$pull:{sendTo:sendTo}})
-      const cancelSendFrom = await usersCollection.updateOne({email:sendTo},{$pull:{sendFrom:sendFrom}})
+      const cancelSendTo = await usersCollection.updateOne(
+        { email: sendFrom },
+        { $pull: { sendTo: sendTo } }
+      );
+      const cancelSendFrom = await usersCollection.updateOne(
+        { email: sendTo },
+        { $pull: { sendFrom: sendFrom } }
+      );
       res.send(cancelSendFrom);
     });
     app.post("/acceptFriendRequest", async (req, res) => {
       const friend = req.body;
       const sendFrom = friend.senderEmail;
       const sendTo = friend.receiverEmail;
-      const acceptSendFrom = await usersCollection.updateOne({email:sendTo},{$push:{newFriend:sendFrom}} &&{$set:{accepted: "true"}})
-      const acceptSendTo = await usersCollection.updateOne({email:sendFrom},{$push:{newFriend:sendTo}} && {$set:{accepted: "true"}})
+      const friendName = friend.firstName + friend.lastName;
+      const receiverPicture = friend.receiverPicture;
+      const displayName = friend.displayName;
+      const senderPicture = friend.senderPicture;
+      const options = { upsert: true };
+      // for use double condition
+      const acceptSendFrom = await usersCollection.updateOne(
+        { email: sendTo },
+        { $push: { newFriend: sendFrom, name : friendName,  }, 
+        $set: { accepted: true , image : receiverPicture}}
+      );
+      const acceptSendTo = await usersCollection.updateOne(
+        { email: sendFrom },
+        { $push: { newFriend: sendTo , name : displayName}, 
+        $set: { accepted: true , image: senderPicture}}
+      );
       res.send(acceptSendTo);
     });
 
+    app.get("/friends", async (req, res) => {
+      const friend = req.query.email;
+      const query = {
+        email: friend,
+      };
+      const acceptSendFrom = await usersCollection.find(query).toArray();
+      res.send(acceptSendFrom);
+    });
   } finally {
   }
 }
@@ -572,10 +602,6 @@ app.get("/", (req, res) => {
   res.send("Start fitlessian");
 });
 
-
-
-
-
 app.listen(port, () => {
-  console.log(`this server is running on ${port}`);
+  console.log(`This server is running on ${port}`);
 });
