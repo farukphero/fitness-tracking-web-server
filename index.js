@@ -46,9 +46,10 @@ async function run() {
       .collection("loggedWater");
     const questionsCollection = client.db("fitlessian").collection("questions");
     // const friendsCollection = client.db("fitlessian").collection("friends");
-    const sendRequestCollection = client
-      .db("fitlessian")
-      .collection("friendRequest");
+ 
+    const sendRequestCollection = client.db("fitlessian").collection("friendRequest");
+    const userAgeCollection = client.db("fitlessian").collection("usersAgeForServices");
+ 
 
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
@@ -586,6 +587,35 @@ async function run() {
       res.send(acceptSendTo);
     });
 
+ 
+
+    app.patch("/usersAgeForServices/:id", async(req, res)=>{
+      const id = req.params.id;
+      const usersAgeForServices = req.body;
+      const filter = { _id: ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          age: usersAgeForServices
+          
+        },
+      };
+      const options = { upsert: true };
+      const result = await userAgeCollection.updateMany(
+        filter,
+        updateDoc,
+        options
+      );
+      // const result = await userAgeCollection.insertOne(usersAgeForServices);
+      res.send(result)
+    });
+
+    app.get("/usersAgeForServices", async(req, res)=>{
+     
+      const query = {};
+      const result = await userAgeCollection.find(query).toArray();
+      res.send(result)
+    })
+ 
     app.get("/friends", async (req, res) => {
       const friend = req.query.email;
       const query = {
@@ -594,6 +624,7 @@ async function run() {
       const acceptSendFrom = await usersCollection.find(query).toArray();
       res.send(acceptSendFrom);
     });
+ 
   } finally {
   }
 }
