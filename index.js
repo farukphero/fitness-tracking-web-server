@@ -18,7 +18,6 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    const UsersCollection = client.db("fitlessian").collection("User");
     const usersCollection = client.db("fitlessian").collection("User");
     const servicesCollection = client.db("fitlessian").collection("services");
     const FoodsCollection = client.db(`fitlessian`).collection(`foods`);
@@ -46,19 +45,35 @@ async function run() {
       .db("fitlessian")
       .collection("loggedWater");
     const questionsCollection = client.db("fitlessian").collection("questions");
+    // const friendsCollection = client.db("fitlessian").collection("friends");
+ 
+    const sendRequestCollection = client.db("fitlessian").collection("friendRequest");
+    const userAgeCollection = client.db("fitlessian").collection("usersAgeForServices");
+ 
 
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
-      const result = await UsersCollection.findOne(query);
+      const result = await usersCollection.findOne(query);
       res.send(result);
       // console.log(result)
     });
 
     app.post("/users", async (req, res) => {
       const user = req.body;
-      const result = await UsersCollection.insertOne(user);
+      const result = await usersCollection.insertOne(user);
+      // console.log(result)
       res.send(result);
+    });
+
+    app.post("/user/:email", async (req, res) => {
+      const email = req.params.email;
+      // const dd=req.body;
+      console.log(email);
+      // const query = { email: email };
+      // const result = await usersCollection.findOne(query).sendFrom.insertOne(dd);
+
+      // res.send(result);
     });
 
     // userpost rumel
@@ -121,11 +136,13 @@ async function run() {
       const services = await servicesCollection.find(query).toArray();
       res.send(services);
     });
+
     app.get("/users", async (req, res) => {
       const query = {};
-      const services = await UsersCollection.find(query).toArray();
+      const services = await usersCollection.find(query).toArray();
       res.send(services);
     });
+
     // Tutorial post (tahmina)
     app.post("/tutorial", async (req, res) => {
       const post = req.body;
@@ -196,8 +213,6 @@ async function run() {
       res.send(result);
     });
 
-    // tutorial category post(tahmina)
-
     // delete logedWeight (tahmina)
     app.delete("/logedWeight/:id", async (req, res) => {
       const id = req.params.id;
@@ -259,12 +274,6 @@ async function run() {
       res.send(result);
     });
 
-    app.post("/users", async (req, res) => {
-      const user = req.body;
-      const result = await usersCollection.insertOne(user);
-      res.send(result);
-    });
-
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
@@ -299,7 +308,6 @@ async function run() {
     app.get("/users", async (req, res) => {
       const query = {};
       const services = await usersCollection.find(query).toArray();
-
       res.send(services);
     });
     app.get("/foods", async (req, res) => {
@@ -355,7 +363,10 @@ async function run() {
     app.get(`/allactivities`, async (req, res) => {
       const email = req.query.activist;
       const query = { activist: email };
-      const result = await ActivitiesCollection.find(query).toArray();
+      const result = await ActivitiesCollection.find(query)
+        .limit(3)
+        .sort({ _id: -1 })
+        .toArray();
       res.send(result);
     });
 
@@ -523,6 +534,106 @@ async function run() {
         .toArray();
       res.send(food);
     });
+    //  send request
+    // app.get("/usersWithoutPresent", async (req, res) => {
+    //   const email = req.query.email;
+    //   const result = await usersCollection.find({email: {$nin : [email]}}).toArray();
+    //   res.send(result);
+    // });
+
+    // send and accept friend request by faruk
+
+    app.post("/friendRequest", async (req, res) => {
+      const friend = req.body;
+      const result = await sendRequestCollection.insertOne(friend);
+      const sendFrom = friend.senderEmail;
+      const sendTo = friend.receiverEmail;
+      const updateSendTo = await usersCollection.updateOne(
+        { email: sendFrom },
+        { $addToSet: { sendTo: sendTo } }
+      );
+      const updateSendFrom = await usersCollection.updateOne(
+        { email: sendTo },
+        { $addToSet: { sendFrom: sendFrom } }
+      );
+      res.send(updateSendFrom);
+    });
+    app.post("/cancelFriendRequest", async (req, res) => {
+      const friend = req.body;
+      // const result = await sendRequestCollection.insertOne(friend);
+      const sendFrom = friend.senderEmail;
+      const sendTo = friend.receiverEmail;
+      const cancelSendTo = await usersCollection.updateOne(
+        { email: sendFrom },
+        { $pull: { sendTo: sendTo } }
+      );
+      const cancelSendFrom = await usersCollection.updateOne(
+        { email: sendTo },
+        { $pull: { sendFrom: sendFrom } }
+      );
+      res.send(cancelSendFrom);
+    });
+    app.post("/acceptFriendRequest", async (req, res) => {
+      const friend = req.body;
+      const sendFrom = friend.senderEmail;
+      const sendTo = friend.receiverEmail;
+      const friendName = friend.firstName + friend.lastName;
+      const receiverPicture = friend.receiverPicture;
+      const displayName = friend.displayName;
+      const senderPicture = friend.senderPicture;
+      const options = { upsert: true };
+      // for use double condition
+      const acceptSendFrom = await usersCollection.updateOne(
+        { email: sendTo },
+        { $push: { newFriend: sendFrom, name : friendName,  }, 
+        $set: { accepted: true , image : receiverPicture}}
+      );
+      const acceptSendTo = await usersCollection.updateOne(
+        { email: sendFrom },
+        { $push: { newFriend: sendTo , name : displayName}, 
+        $set: { accepted: true , image: senderPicture}}
+      );
+      res.send(acceptSendTo);
+    });
+
+ 
+
+    app.patch("/usersAgeForServices/:id", async(req, res)=>{
+      const id = req.params.id;
+      const usersAgeForServices = req.body;
+      const filter = { _id: ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          age: usersAgeForServices
+          
+        },
+      };
+      const options = { upsert: true };
+      const result = await userAgeCollection.updateMany(
+        filter,
+        updateDoc,
+        options
+      );
+      // const result = await userAgeCollection.insertOne(usersAgeForServices);
+      res.send(result)
+    });
+
+    app.get("/usersAgeForServices", async(req, res)=>{
+     
+      const query = {};
+      const result = await userAgeCollection.find(query).toArray();
+      res.send(result)
+    })
+ 
+    app.get("/friends", async (req, res) => {
+      const friend = req.query.email;
+      const query = {
+        email: friend,
+      };
+      const acceptSendFrom = await usersCollection.find(query).toArray();
+      res.send(acceptSendFrom);
+    });
+ 
   } finally {
   }
 }
@@ -530,6 +641,7 @@ run().catch((err) => console.log(err));
 app.get("/", (req, res) => {
   res.send("Start fitlessian");
 });
+
 app.listen(port, () => {
-  console.log(`this server is running on ${port}`);
+  console.log(`This server is running on ${port}`);
 });
