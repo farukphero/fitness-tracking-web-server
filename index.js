@@ -49,6 +49,7 @@ async function run() {
  
     const sendRequestCollection = client.db("fitlessian").collection("friendRequest");
     const userAgeCollection = client.db("fitlessian").collection("usersAgeForServices");
+    const messagesCollection = client.db("fitlessian").collection("messages");
  
 
     app.get("/users/:email", async (req, res) => {
@@ -586,8 +587,40 @@ async function run() {
       );
       res.send(acceptSendTo);
     });
+     
+    app.get("/friends/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = {_id: ObjectId(id)};
+      const acceptSendFrom = await usersCollection.findOne(query);
+      res.send(acceptSendFrom);
+    });
 
- 
+    app.get("/friends", async (req, res) => {
+      const friend = req.query.email;
+      const query = {
+        email: friend,
+      };
+      const acceptSendFrom = await usersCollection.find(query).toArray();
+      res.send(acceptSendFrom);
+    });
+  // message start
+
+  app.post("/messages", async (req, res) => {
+    const msg = req.body;
+    const result = await messagesCollection.insertOne(msg);
+    console.log(result);
+    res.send(result);
+  });
+
+  app.get('/getMessages/:userId/:friendId',async(req,res)=>{
+    const userId=req.params.userId;
+    const friendId=req.params.friendId;
+    const allMessages =await messagesCollection.find().toArray();
+    const result=allMessages.filter(msg=>(msg.currentUserId===userId && msg.currentFrndId===friendId)||(msg.currentUserId===friendId && msg.currentFrndId===userId));
+    res.send(result);
+
+  })
+  // message end 
 
     app.patch("/usersAgeForServices/:id", async(req, res)=>{
       const id = req.params.id;
@@ -616,14 +649,7 @@ async function run() {
       res.send(result)
     })
  
-    app.get("/friends", async (req, res) => {
-      const friend = req.query.email;
-      const query = {
-        email: friend,
-      };
-      const acceptSendFrom = await usersCollection.find(query).toArray();
-      res.send(acceptSendFrom);
-    });
+    
  
   } finally {
   }
