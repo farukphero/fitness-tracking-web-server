@@ -375,7 +375,6 @@ async function run() {
 
     app.post(`/activities`, async (req, res) => {
       const activity = req.body;
-      // console.log(activity.activity_date);
       const result = await ActivitiesCollection.insertOne({
         ...activity,
         timestamp: new Date(activity.activity_date),
@@ -383,12 +382,22 @@ async function run() {
       res.send(result);
     });
 
-    app.get(`/activities`, async (req, res) => {
+    app.get(`/allactivities`, async (req, res) => {
       const email = req.query.activist;
       const query = { activist: email };
       const result = await ActivitiesCollection.find(query)
         .limit(3)
         .sort({ _id: -1 })
+        .toArray();
+      res.send(result);
+    });
+
+    app.get(`/activities`, async (req, res) => {
+      const email = req.query.activist;
+      const query = { activist: email };
+      const result = await ActivitiesCollection.find(query)
+        .sort({ activity_date: 1 })
+        .limit(5)
         .toArray();
       res.send(result);
     });
