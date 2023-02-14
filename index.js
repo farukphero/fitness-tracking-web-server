@@ -47,8 +47,16 @@ async function run() {
     const questionsCollection = client.db("fitlessian").collection("questions");
     // const friendsCollection = client.db("fitlessian").collection("friends");
  
-    const sendRequestCollection = client.db("fitlessian").collection("friendRequest");
-    const userAgeCollection = client.db("fitlessian").collection("usersAgeForServices");
+    const sendRequestCollection = client
+      .db("fitlessian")
+      .collection("friendRequest");
+    const instructorCollection = client
+      .db("fitlessian")
+      .collection("instructor");
+ 
+ 
+     const userAgeCollection = client.db("fitlessian").collection("usersAgeForServices");
+ 
  
 
     app.get("/users/:email", async (req, res) => {
@@ -88,6 +96,22 @@ async function run() {
       const result = await postCollection.find(user).toArray();
       res.send(result);
     });
+
+    // instructor
+    app.get("/instructor", async (req, res) => {
+      const user = {};
+      const result = await instructorCollection.find(user).toArray();
+      res.send(result);
+    });
+    app.get("/instructor/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const result = await instructorCollection.findOne(filter);
+      res.send(result);
+    });
+
+
+
     // postlike rumel
     app.put("/post/:id", async (req, res) => {
       const post = req.body;
@@ -576,13 +600,17 @@ async function run() {
       // for use double condition
       const acceptSendFrom = await usersCollection.updateOne(
         { email: sendTo },
-        { $push: { newFriend: sendFrom, name : friendName,  }, 
-        $set: { accepted: true , image : receiverPicture}}
+        {
+          $push: { newFriend: sendFrom, name: friendName, },
+          $set: { accepted: true, image: receiverPicture }
+        }
       );
       const acceptSendTo = await usersCollection.updateOne(
         { email: sendFrom },
-        { $push: { newFriend: sendTo , name : displayName}, 
-        $set: { accepted: true , image: senderPicture}}
+        {
+          $push: { newFriend: sendTo, name: displayName },
+          $set: { accepted: true, image: senderPicture }
+        }
       );
       res.send(acceptSendTo);
     });
