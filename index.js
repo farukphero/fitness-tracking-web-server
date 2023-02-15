@@ -605,8 +605,8 @@ async function run() {
       const senderPicture = friend.senderPicture;
       const receiverId = friend.receiverId;
       const senderId = friend.senderId;
-      const receiverNewFriend = { friend: sendFrom, name: friendName, image: receiverPicture , receiverId : receiverId }
-      const senderNewFriend = { newFriend: sendTo, name: displayName, image: senderPicture, senderId:senderId }
+      const receiverNewFriend = { friendEmail: sendFrom, name: friendName, image: receiverPicture , receiverId : receiverId }
+      const senderNewFriend = { friendEmail: sendTo, name: displayName, image: senderPicture, senderId:senderId }
       const options = { upsert: true };
       // for use double condition
       const acceptSendFrom = await usersCollection.updateOne(
