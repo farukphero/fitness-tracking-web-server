@@ -634,12 +634,12 @@ async function run() {
     });
 
     app.get("/friends", async (req, res) => {
-      const friend = req.query.email;
+      const email = req.query.email;
       const query = {
-        email: friend,
+        email: email,
       };
-      const acceptSendFrom = await usersCollection.find(query).toArray();
-      res.send(acceptSendFrom);
+      const friends = await usersCollection.find(query).toArray();
+      res.send(friends);
     });
     // message start
 
