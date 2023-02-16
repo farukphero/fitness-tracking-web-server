@@ -46,18 +46,22 @@ async function run() {
       .collection("loggedWater");
     const questionsCollection = client.db("fitlessian").collection("questions");
     // const friendsCollection = client.db("fitlessian").collection("friends");
+ 
+ 
+    const sendRequestCollection = client.db("fitlessian").collection("friendRequest");
+    const userAgeCollection = client.db("fitlessian").collection("usersAgeForServices");
 
-    const sendRequestCollection = client
-      .db("fitlessian")
-      .collection("friendRequest");
-    const userAgeCollection = client
-      .db("fitlessian")
-      .collection("usersAgeForServices");
+    const instructorsCollection = client.db(`fitlessian`).collection(`Instructors`);
+ 
+ 
+
+  
     const messagesCollection = client.db("fitlessian").collection("messages");
 
     const instructorCollection = client
       .db("fitlessian")
       .collection("instructor");
+ 
 
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
@@ -684,6 +688,25 @@ async function run() {
       const result = await userAgeCollection.find(query).toArray();
       res.send(result);
     });
+ 
+
+    // video calling page api by @euhansarkar
+
+    app.get(`/instructors`, async(req, res) => {
+      const query = {};
+      const result = await instructorsCollection.find(query).toArray();
+      res.send(result);
+    })
+
+    app.get(`/instructors/:id`, async(req, res) => {
+      const id = req.params.id;
+      const query = {_id: ObjectId(id)};
+      const result = await instructorsCollection.findOne(query);
+      res.send(result);
+    })
+
+ 
+ 
   } finally {
   }
 }
