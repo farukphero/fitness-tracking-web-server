@@ -640,12 +640,12 @@ async function run() {
     });
 
     app.get("/friends", async (req, res) => {
-      const friend = req.query.email;
+      const email = req.query.email;
       const query = {
-        email: friend,
+        email: email,
       };
-      const acceptSendFrom = await usersCollection.find(query).toArray();
-      res.send(acceptSendFrom);
+      const friends = await usersCollection.find(query).toArray();
+      res.send(friends);
     });
     // message start
 
@@ -656,14 +656,14 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/getMessages/:userId/:friendId", async (req, res) => {
-      const userId = req.params.userId;
-      const friendId = req.params.friendId;
+    app.get("/getMessages/:user/:friendEmail", async (req, res) => {
+      const user= req.params.user;
+      const friendEmail = req.params.friendEmail;
       const allMessages = await messagesCollection.find().toArray();
       const result = allMessages.filter(
         (msg) =>
-          (msg.currentUserId === userId && msg.currentFrndId === friendId) ||
-          (msg.currentUserId === friendId && msg.currentFrndId === userId)
+          (msg.user === user && msg.friendEmail === friendEmail) ||
+          (msg.user === friendEmail && msg.friendEmail === user)
       );
       res.send(result);
     });
