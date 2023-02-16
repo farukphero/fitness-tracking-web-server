@@ -49,6 +49,8 @@ async function run() {
  
     const sendRequestCollection = client.db("fitlessian").collection("friendRequest");
     const userAgeCollection = client.db("fitlessian").collection("usersAgeForServices");
+
+    const instructorsCollection = client.db(`fitlessian`).collection(`Instructors`);
  
 
     app.get("/users/:email", async (req, res) => {
@@ -633,6 +635,22 @@ async function run() {
       const acceptSendFrom = await usersCollection.find(query).toArray();
       res.send(acceptSendFrom);
     });
+
+    // video calling page api by @euhansarkar
+
+    app.get(`/instructors`, async(req, res) => {
+      const query = {};
+      const result = await instructorsCollection.find(query).toArray();
+      res.send(result);
+    })
+
+    app.get(`/instructors/:id`, async(req, res) => {
+      const id = req.params.id;
+      const query = {_id: ObjectId(id)};
+      const result = await instructorsCollection.findOne(query);
+      res.send(result);
+    })
+
  
   } finally {
   }
