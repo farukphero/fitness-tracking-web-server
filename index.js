@@ -562,13 +562,6 @@ async function run() {
         .toArray();
       res.send(food);
     });
-    //  send request
-    // app.get("/usersWithoutPresent", async (req, res) => {
-    //   const email = req.query.email;
-    //   const result = await usersCollection.find({email: {$nin : [email]}}).toArray();
-    //   res.send(result);
-    // });
-
     // send and accept friend request by faruk
 
     app.post("/friendRequest", async (req, res) => {
@@ -652,7 +645,6 @@ async function run() {
     app.post("/messages", async (req, res) => {
       const msg = req.body;
       const result = await messagesCollection.insertOne(msg);
-      console.log(result);
       res.send(result);
     });
 
@@ -684,8 +676,7 @@ async function run() {
         updateDoc,
         options
       );
-      // const result = await userAgeCollection.insertOne(usersAgeForServices);
-      res.send(result);
+       res.send(result);
     });
 
     app.get("/usersAgeForServices", async (req, res) => {
