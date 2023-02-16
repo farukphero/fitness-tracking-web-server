@@ -137,6 +137,12 @@ async function run() {
       const result = await questionsCollection.insertOne(post);
       res.send(result);
     });
+
+    app.get('/question', async (req, res) => {
+      const query = {}
+      const result = await questionsCollection.find(query).toArray()
+      res.send(result)
+    })
     // comment rumel
     app.post("/post/comment/:id", async (req, res) => {
       const post = req.body;
