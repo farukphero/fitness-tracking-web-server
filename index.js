@@ -21,7 +21,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    
+
     const usersCollection = client.db("fitlessian").collection("User");
     const servicesCollection = client.db("fitlessian").collection("services");
     const FoodsCollection = client.db(`fitlessian`).collection(`foods`);
@@ -59,7 +59,7 @@ async function run() {
       res.send(result);
       // console.log(result)
     });
-    
+
 
     app.post("/users", async (req, res) => {
       const user = req.body;
@@ -69,7 +69,7 @@ async function run() {
     });
 
 
-    app.post("/user/:email",async(req,res)=>{
+    app.post("/user/:email", async (req, res) => {
       const email = req.params.email;
       // const dd=req.body;
       console.log(email)
@@ -389,6 +389,7 @@ async function run() {
       res.send(result);
     });
 
+
     // last 7 days data
 
     app.get(`/activities/7`, async (req, res) => {
@@ -518,23 +519,35 @@ async function run() {
       res.send(favoriteFood);
     });
 
+    // app.get("/foods/seven/:email", async (req, res) => {
+    //   const email = req.params.email;
+    //   const currentDate = new Date();
+    //   const sevenDaysAgo = new Date(currentDate - 7 * 24 * 60 * 60 * 1000);
+    //   const sevenDaysAgoDateOnly = sevenDaysAgo.toLocaleDateString();
+    //   const food = await loggedFoodCollection
+    //     .find({ date: { $gte: sevenDaysAgoDateOnly }, userEmail: email })
+    //     .toArray();
+    //   res.send(food);
+    // });
+
     app.get("/foods/seven/:email", async (req, res) => {
       const email = req.params.email;
-      const currentDate = new Date();
-      const sevenDaysAgo = new Date(currentDate - 7 * 24 * 60 * 60 * 1000);
-      const sevenDaysAgoDateOnly = sevenDaysAgo.toLocaleDateString();
-      const food = await loggedFoodCollection
-        .find({ date: { $gte: sevenDaysAgoDateOnly }, userEmail: email })
-        .toArray();
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      const food = await loggedFoodCollection.find({
+        userEmail: email,
+        date: { $gte: sevenDaysAgo },
+      }).toArray();
       res.send(food);
     });
+
+
     //  send request
     // app.get("/usersWithoutPresent", async (req, res) => {
     //   const email = req.query.email;
     //   const result = await usersCollection.find({email: {$nin : [email]}}).toArray();
     //   res.send(result);
     // });
-    
+
     // send and accept friend request by faruk
 
     app.post("/friendRequest", async (req, res) => {
@@ -542,8 +555,8 @@ async function run() {
       const result = await sendRequestCollection.insertOne(friend);
       const sendFrom = friend.senderEmail;
       const sendTo = friend.receiverEmail;
-      const updateSendTo = await usersCollection.updateOne({email:sendFrom},{$addToSet:{sendTo:sendTo}})
-      const updateSendFrom = await usersCollection.updateOne({email:sendTo},{$addToSet:{sendFrom:sendFrom}})
+      const updateSendTo = await usersCollection.updateOne({ email: sendFrom }, { $addToSet: { sendTo: sendTo } })
+      const updateSendFrom = await usersCollection.updateOne({ email: sendTo }, { $addToSet: { sendFrom: sendFrom } })
       res.send(updateSendFrom);
     });
     app.post("/cancelFriendRequest", async (req, res) => {
@@ -551,16 +564,16 @@ async function run() {
       // const result = await sendRequestCollection.insertOne(friend);
       const sendFrom = friend.senderEmail;
       const sendTo = friend.receiverEmail;
-      const cancelSendTo = await usersCollection.updateOne({email:sendFrom},{$pull:{sendTo:sendTo}})
-      const cancelSendFrom = await usersCollection.updateOne({email:sendTo},{$pull:{sendFrom:sendFrom}})
+      const cancelSendTo = await usersCollection.updateOne({ email: sendFrom }, { $pull: { sendTo: sendTo } })
+      const cancelSendFrom = await usersCollection.updateOne({ email: sendTo }, { $pull: { sendFrom: sendFrom } })
       res.send(cancelSendFrom);
     });
     app.post("/acceptFriendRequest", async (req, res) => {
       const friend = req.body;
       const sendFrom = friend.senderEmail;
       const sendTo = friend.receiverEmail;
-      const acceptSendFrom = await usersCollection.updateOne({email:sendTo},{$push:{newFriend:sendFrom}} &&{$set:{accepted: "true"}})
-      const acceptSendTo = await usersCollection.updateOne({email:sendFrom},{$push:{newFriend:sendTo}} && {$set:{accepted: "true"}})
+      const acceptSendFrom = await usersCollection.updateOne({ email: sendTo }, { $push: { newFriend: sendFrom } } && { $set: { accepted: "true" } })
+      const acceptSendTo = await usersCollection.updateOne({ email: sendFrom }, { $push: { newFriend: sendTo } } && { $set: { accepted: "true" } })
       res.send(acceptSendTo);
     });
 
