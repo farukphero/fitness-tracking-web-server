@@ -9,9 +9,6 @@ require("dotenv").config();
 app.use(cors());
 app.use(express.json());
 
-
-
-
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@clusterfit.lgaupy2.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -21,7 +18,6 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-
     const usersCollection = client.db("fitlessian").collection("User");
     const servicesCollection = client.db("fitlessian").collection("services");
     const FoodsCollection = client.db(`fitlessian`).collection(`foods`);
@@ -50,7 +46,22 @@ async function run() {
       .collection("loggedWater");
     const questionsCollection = client.db("fitlessian").collection("questions");
     // const friendsCollection = client.db("fitlessian").collection("friends");
+ 
+ 
     const sendRequestCollection = client.db("fitlessian").collection("friendRequest");
+    const userAgeCollection = client.db("fitlessian").collection("usersAgeForServices");
+
+    const instructorsCollection = client.db(`fitlessian`).collection(`Instructors`);
+ 
+ 
+
+  
+    const messagesCollection = client.db("fitlessian").collection("messages");
+
+    const instructorCollection = client
+      .db("fitlessian")
+      .collection("instructor");
+ 
 
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
@@ -60,7 +71,6 @@ async function run() {
       // console.log(result)
     });
 
-
     app.post("/users", async (req, res) => {
       const user = req.body;
       const result = await usersCollection.insertOne(user);
@@ -68,17 +78,15 @@ async function run() {
       res.send(result);
     });
 
-
     app.post("/user/:email", async (req, res) => {
       const email = req.params.email;
       // const dd=req.body;
-      console.log(email)
+      console.log(email);
       // const query = { email: email };
       // const result = await usersCollection.findOne(query).sendFrom.insertOne(dd);
 
       // res.send(result);
-    })
-
+    });
 
     // userpost rumel
     app.post("/post", async (req, res) => {
@@ -92,6 +100,20 @@ async function run() {
       const result = await postCollection.find(user).toArray();
       res.send(result);
     });
+
+    // instructor
+    app.get("/instructor", async (req, res) => {
+      const user = {};
+      const result = await instructorCollection.find(user).toArray();
+      res.send(result);
+    });
+    app.get("/instructor/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const result = await instructorCollection.findOne(filter);
+      res.send(result);
+    });
+
     // postlike rumel
     app.put("/post/:id", async (req, res) => {
       const post = req.body;
@@ -119,6 +141,12 @@ async function run() {
       const result = await questionsCollection.insertOne(post);
       res.send(result);
     });
+
+    app.get('/question', async (req, res) => {
+      const query = {}
+      const result = await questionsCollection.find(query).toArray()
+      res.send(result)
+    })
     // comment rumel
     app.post("/post/comment/:id", async (req, res) => {
       const post = req.body;
@@ -217,7 +245,6 @@ async function run() {
       res.send(result);
     });
 
-
     // delete logedWeight (tahmina)
     app.delete("/logedWeight/:id", async (req, res) => {
       const id = req.params.id;
@@ -278,7 +305,6 @@ async function run() {
       );
       res.send(result);
     });
-
 
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
@@ -359,7 +385,6 @@ async function run() {
 
     app.post(`/activities`, async (req, res) => {
       const activity = req.body;
-      // console.log(activity.activity_date);
       const result = await ActivitiesCollection.insertOne({
         ...activity,
         timestamp: new Date(activity.activity_date),
@@ -367,10 +392,23 @@ async function run() {
       res.send(result);
     });
 
+    app.get(`/allactivities`, async (req, res) => {
+      const email = req.query.activist;
+      const query = { activist: email };
+      const result = await ActivitiesCollection.find(query)
+        .limit(3)
+        .sort({ _id: -1 })
+        .toArray();
+      res.send(result);
+    });
+
     app.get(`/activities`, async (req, res) => {
       const email = req.query.activist;
       const query = { activist: email };
-      const result = await ActivitiesCollection.find(query).limit(3).sort({ _id: -1 }).toArray();
+      const result = await ActivitiesCollection.find(query)
+        .sort({ activity_date: 1 })
+        .limit(5)
+        .toArray();
       res.send(result);
     });
 
@@ -454,6 +492,33 @@ async function run() {
       const result = await favoriteFoodCollection.insertOne(favoriteFood);
       res.send(result);
     });
+
+    // app.patch("/favouriteFood", async (req, res) => {
+    //   const favoriteFood = req.body;
+    //   // const filter = { userEmail : favoriteFood.userEmail };
+    //   const filter = {};
+    //   const option = { upsert: true };
+    //   const updatedFavoriteFood = {
+    //     $set: {
+    //       food: favoriteFood.food,
+    //   amount: favoriteFood.amount,
+    //   calorey: favoriteFood.calorey,
+    //   time: favoriteFood.time,
+    //   userEmail: favoriteFood.userEmail,
+    //   date: favoriteFood.date,
+    //     },
+    //   };
+    //   const result = await favoriteFoodCollection.updateMany(
+    //     filter,
+    //     updatedFavoriteFood,
+    //     option
+    //   );
+    //   console.log(result);
+    //   res.send(result);
+    // });
+
+
+
 
     app.get("/loggedFood/:email", async (req, res) => {
       const email = req.params.email;
@@ -555,8 +620,14 @@ async function run() {
       const result = await sendRequestCollection.insertOne(friend);
       const sendFrom = friend.senderEmail;
       const sendTo = friend.receiverEmail;
-      const updateSendTo = await usersCollection.updateOne({ email: sendFrom }, { $addToSet: { sendTo: sendTo } })
-      const updateSendFrom = await usersCollection.updateOne({ email: sendTo }, { $addToSet: { sendFrom: sendFrom } })
+      const updateSendTo = await usersCollection.updateOne(
+        { email: sendFrom },
+        { $addToSet: { sendTo: sendTo } }
+      );
+      const updateSendFrom = await usersCollection.updateOne(
+        { email: sendTo },
+        { $addToSet: { sendFrom: sendFrom } }
+      );
       res.send(updateSendFrom);
     });
     app.post("/cancelFriendRequest", async (req, res) => {
@@ -564,19 +635,127 @@ async function run() {
       // const result = await sendRequestCollection.insertOne(friend);
       const sendFrom = friend.senderEmail;
       const sendTo = friend.receiverEmail;
-      const cancelSendTo = await usersCollection.updateOne({ email: sendFrom }, { $pull: { sendTo: sendTo } })
-      const cancelSendFrom = await usersCollection.updateOne({ email: sendTo }, { $pull: { sendFrom: sendFrom } })
+      const cancelSendTo = await usersCollection.updateOne(
+        { email: sendFrom },
+        { $pull: { sendTo: sendTo } }
+      );
+      const cancelSendFrom = await usersCollection.updateOne(
+        { email: sendTo },
+        { $pull: { sendFrom: sendFrom } }
+      );
       res.send(cancelSendFrom);
     });
     app.post("/acceptFriendRequest", async (req, res) => {
       const friend = req.body;
       const sendFrom = friend.senderEmail;
       const sendTo = friend.receiverEmail;
-      const acceptSendFrom = await usersCollection.updateOne({ email: sendTo }, { $push: { newFriend: sendFrom } } && { $set: { accepted: "true" } })
-      const acceptSendTo = await usersCollection.updateOne({ email: sendFrom }, { $push: { newFriend: sendTo } } && { $set: { accepted: "true" } })
+      const friendName = friend.firstName + friend.lastName;
+      const receiverPicture = friend.receiverPicture;
+      const displayName = friend.displayName;
+      const senderPicture = friend.senderPicture;
+      const receiverId = friend.receiverId;
+      const senderId = friend.senderId;
+      const receiverNewFriend = { friendEmail: sendFrom, name: friendName, image: receiverPicture , receiverId : receiverId }
+      const senderNewFriend = { friendEmail: sendTo, name: displayName, image: senderPicture, senderId:senderId }
+      const options = { upsert: true };
+      // for use double condition
+      const acceptSendFrom = await usersCollection.updateOne(
+        { email: sendTo },
+        {
+          $push: {newFriend: receiverNewFriend},
+          $set: { accepted: true },
+        }
+      );
+      const acceptSendTo = await usersCollection.updateOne(
+        { email: sendFrom },
+        {
+          $push:{newFriend :senderNewFriend} ,
+          $set: { accepted: true },
+        }
+      );
       res.send(acceptSendTo);
     });
 
+    app.get("/friends/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const acceptSendFrom = await usersCollection.findOne(query);
+      res.send(acceptSendFrom);
+    });
+
+    app.get("/friends", async (req, res) => {
+      const email = req.query.email;
+      const query = {
+        email: email,
+      };
+      const friends = await usersCollection.find(query).toArray();
+      res.send(friends);
+    });
+    // message start
+
+    app.post("/messages", async (req, res) => {
+      const msg = req.body;
+      const result = await messagesCollection.insertOne(msg);
+      console.log(result);
+      res.send(result);
+    });
+
+    app.get("/getMessages/:user/:friendEmail", async (req, res) => {
+      const user= req.params.user;
+      const friendEmail = req.params.friendEmail;
+      const allMessages = await messagesCollection.find().toArray();
+      const result = allMessages.filter(
+        (msg) =>
+          (msg.user === user && msg.friendEmail === friendEmail) ||
+          (msg.user === friendEmail && msg.friendEmail === user)
+      );
+      res.send(result);
+    });
+    // message end
+
+    app.patch("/usersAgeForServices/:id", async (req, res) => {
+      const id = req.params.id;
+      const usersAgeForServices = req.body;
+      const filter = { _id: ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          age: usersAgeForServices,
+        },
+      };
+      const options = { upsert: true };
+      const result = await userAgeCollection.updateMany(
+        filter,
+        updateDoc,
+        options
+      );
+      // const result = await userAgeCollection.insertOne(usersAgeForServices);
+      res.send(result);
+    });
+
+    app.get("/usersAgeForServices", async (req, res) => {
+      const query = {};
+      const result = await userAgeCollection.find(query).toArray();
+      res.send(result);
+    });
+ 
+
+    // video calling page api by @euhansarkar
+
+    app.get(`/instructors`, async(req, res) => {
+      const query = {};
+      const result = await instructorsCollection.find(query).toArray();
+      res.send(result);
+    })
+
+    app.get(`/instructors/:id`, async(req, res) => {
+      const id = req.params.id;
+      const query = {_id: ObjectId(id)};
+      const result = await instructorsCollection.findOne(query);
+      res.send(result);
+    })
+
+ 
+ 
   } finally {
   }
 }
@@ -585,10 +764,6 @@ app.get("/", (req, res) => {
   res.send("Start fitlessian");
 });
 
-
-
-
-
 app.listen(port, () => {
-  console.log(`this server is running on ${port}`);
+  console.log(`This server is running on ${port}`);
 });
