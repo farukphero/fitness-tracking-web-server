@@ -46,13 +46,23 @@ async function run() {
       .collection("loggedWater");
     const questionsCollection = client.db("fitlessian").collection("questions");
     // const friendsCollection = client.db("fitlessian").collection("friends");
-    const sendRequestCollection = client.db("fitlessian").collection("friendRequest");
-    const userAgeCollection = client.db("fitlessian").collection("usersAgeForServices");
-    const instructorsCollection = client.db(`fitlessian`).collection(`Instructors`);
+    const sendRequestCollection = client
+      .db("fitlessian")
+      .collection("friendRequest");
+    const userAgeCollection = client
+      .db("fitlessian")
+      .collection("usersAgeForServices");
+    const instructorsCollection = client
+      .db(`fitlessian`)
+      .collection(`Instructors`);
+
+    const AnswerCollection = client.db(`fitlessian`).collection(`answer`);
+
     const messagesCollection = client.db("fitlessian").collection("messages");
     const instructorCollection = client
       .db("fitlessian")
       .collection("instructor");
+
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
@@ -60,6 +70,25 @@ async function run() {
       res.send(result);
       // console.log(result)
     });
+
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const result = await usersCollection.insertOne(user);
+      // console.log(result)
+      res.send(result);
+    });
+    app.post("/ans", async (req, res) => {
+      const user = req.body;
+      const result = await AnswerCollection.insertOne(user);
+      // console.log(result)
+      res.send(result);
+    });
+    app.get("/answer", async (req, res) => {
+      const user = {};
+      const result = await AnswerCollection.find(user).toArray();
+      res.send(result);
+    });
+
     // userpost rumel
     app.post("/post", async (req, res) => {
       const user = req.body;
@@ -113,11 +142,11 @@ async function run() {
       res.send(result);
     });
 
-    app.get('/question', async (req, res) => {
-      const query = {}
-      const result = await questionsCollection.find(query).toArray()
-      res.send(result)
-    })
+    app.get("/question", async (req, res) => {
+      const query = {};
+      const result = await questionsCollection.find(query).toArray();
+      res.send(result);
+    });
     // comment rumel
     app.post("/post/comment/:id", async (req, res) => {
       const post = req.body;
@@ -202,7 +231,7 @@ async function run() {
         updatedUser,
         option
       );
-      console.log(result);
+  
       res.send(result);
     });
 
@@ -366,13 +395,12 @@ async function run() {
       res.send(result);
     });
 
-    app.delete(`/activities/:id`, async(req, res) => {
+    app.delete(`/activities/:id`, async (req, res) => {
       const id = req.params.id;
-      const query = {_id: ObjectId(id)};
+      const query = { _id: ObjectId(id) };
       const result = await ActivitiesCollection.deleteOne(query);
       res.send(result);
-    })
-
+    });
 
     app.get(`/activities`, async (req, res) => {
       const email = req.query.activist;
@@ -580,21 +608,31 @@ async function run() {
       const senderPicture = friend.senderPicture;
       const receiverId = friend.receiverId;
       const senderId = friend.senderId;
-      const receiverNewFriend = { friendEmail: sendFrom, name: friendName, image: receiverPicture , receiverId : receiverId }
-      const senderNewFriend = { friendEmail: sendTo, name: displayName, image: senderPicture, senderId:senderId }
+      const receiverNewFriend = {
+        friendEmail: sendFrom,
+        name: friendName,
+        image: receiverPicture,
+        receiverId: receiverId,
+      };
+      const senderNewFriend = {
+        friendEmail: sendTo,
+        name: displayName,
+        image: senderPicture,
+        senderId: senderId,
+      };
       const options = { upsert: true };
       // for use double condition
       const acceptSendFrom = await usersCollection.updateOne(
         { email: sendTo },
         {
-          $push: {newFriend: receiverNewFriend},
+          $push: { newFriend: receiverNewFriend },
           $set: { accepted: true },
         }
       );
       const acceptSendTo = await usersCollection.updateOne(
         { email: sendFrom },
         {
-          $push:{newFriend :senderNewFriend} ,
+          $push: { newFriend: senderNewFriend },
           $set: { accepted: true },
         }
       );
@@ -625,7 +663,7 @@ async function run() {
     });
 
     app.get("/getMessages/:user/:friendEmail", async (req, res) => {
-      const user= req.params.user;
+      const user = req.params.user;
       const friendEmail = req.params.friendEmail;
       const allMessages = await messagesCollection.find().toArray();
       const result = allMessages.filter(
@@ -652,7 +690,7 @@ async function run() {
         updateDoc,
         options
       );
-       res.send(result);
+      res.send(result);
     });
 
     app.get("/usersAgeForServices", async (req, res) => {
@@ -660,25 +698,21 @@ async function run() {
       const result = await userAgeCollection.find(query).toArray();
       res.send(result);
     });
- 
 
     // video calling page api by @euhansarkar
 
-    app.get(`/instructors`, async(req, res) => {
+    app.get(`/instructors`, async (req, res) => {
       const query = {};
       const result = await instructorsCollection.find(query).toArray();
       res.send(result);
-    })
+    });
 
-    app.get(`/instructors/:id`, async(req, res) => {
+    app.get(`/instructors/:id`, async (req, res) => {
       const id = req.params.id;
-      const query = {_id: ObjectId(id)};
+      const query = { _id: ObjectId(id) };
       const result = await instructorsCollection.findOne(query);
       res.send(result);
-    })
-
- 
- 
+    });
   } finally {
   }
 }
