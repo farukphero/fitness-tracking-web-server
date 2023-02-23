@@ -46,23 +46,13 @@ async function run() {
       .collection("loggedWater");
     const questionsCollection = client.db("fitlessian").collection("questions");
     // const friendsCollection = client.db("fitlessian").collection("friends");
- 
- 
     const sendRequestCollection = client.db("fitlessian").collection("friendRequest");
     const userAgeCollection = client.db("fitlessian").collection("usersAgeForServices");
-
     const instructorsCollection = client.db(`fitlessian`).collection(`Instructors`);
- 
- 
-
-  
     const messagesCollection = client.db("fitlessian").collection("messages");
-
     const instructorCollection = client
       .db("fitlessian")
       .collection("instructor");
- 
-
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
@@ -70,24 +60,6 @@ async function run() {
       res.send(result);
       // console.log(result)
     });
-
-    app.post("/users", async (req, res) => {
-      const user = req.body;
-      const result = await usersCollection.insertOne(user);
-      // console.log(result)
-      res.send(result);
-    });
-
-    app.post("/user/:email", async (req, res) => {
-      const email = req.params.email;
-      // const dd=req.body;
-      console.log(email);
-      // const query = { email: email };
-      // const result = await usersCollection.findOne(query).sendFrom.insertOne(dd);
-
-      // res.send(result);
-    });
-
     // userpost rumel
     app.post("/post", async (req, res) => {
       const user = req.body;
@@ -137,7 +109,6 @@ async function run() {
     // questions rumel
     app.post("/questions", async (req, res) => {
       const post = req.body;
-      console.log(post);
       const result = await questionsCollection.insertOne(post);
       res.send(result);
     });
@@ -313,12 +284,6 @@ async function run() {
       res.send(result);
     });
 
-    app.post("/users", async (req, res) => {
-      const user = req.body;
-      const result = await usersCollection.insertOne(user);
-      res.send(result);
-    });
-
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
@@ -331,7 +296,6 @@ async function run() {
       const result = await usersCollection.insertOne(user);
       res.send(result);
     });
-
     app.get("/services", async (req, res) => {
       const query = {};
       const services = await servicesCollection.find(query).toArray();
@@ -406,8 +370,8 @@ async function run() {
       const email = req.query.activist;
       const query = { activist: email };
       const result = await ActivitiesCollection.find(query)
-        .sort({ activity_date: 1 })
-        .limit(5)
+        .sort({ activity_date: -1 })
+        .limit(7)
         .toArray();
       res.send(result);
     });
