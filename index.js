@@ -501,6 +501,13 @@ async function run() {
     app.get("/favouriteFood/:email", async (req, res) => {
       const email = req.params.email;
       const query = { userEmail: email };
+      const favoriteFood = await favoriteFoodCollection.find(query).limit(3)
+      .sort({ _id: -1 }).toArray();
+      res.send(favoriteFood);
+    });
+    app.get("/allFavouriteFood/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { userEmail: email };
       const favoriteFood = await favoriteFoodCollection.find(query).toArray();
       res.send(favoriteFood);
     });
@@ -508,6 +515,7 @@ async function run() {
     // favourite Food
     app.post("/favouriteFood", async (req, res) => {
       const favoriteFood = req.body;
+      console.log(newFood)
       const result = await favoriteFoodCollection.insertOne(favoriteFood);
       res.send(result);
     });
