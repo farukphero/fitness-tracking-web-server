@@ -9,13 +9,12 @@ require("dotenv").config();
 app.use(cors());
 app.use(express.json());
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@clusterfit.lgaupy2.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `${process.env.DB_CONNECT}`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
-
 async function run() {
   try {
     const usersCollection = client.db("fitlessian").collection("User");
@@ -68,19 +67,18 @@ async function run() {
       const query = { email: email };
       const result = await usersCollection.findOne(query);
       res.send(result);
-      // console.log(result)
     });
 
     app.post("/users", async (req, res) => {
       const user = req.body;
       const result = await usersCollection.insertOne(user);
-      // console.log(result)
+
       res.send(result);
     });
     app.post("/ans", async (req, res) => {
       const user = req.body;
       const result = await AnswerCollection.insertOne(user);
-      // console.log(result)
+
       res.send(result);
     });
     app.get("/answer", async (req, res) => {
@@ -150,7 +148,7 @@ async function run() {
     // comment rumel
     app.post("/post/comment/:id", async (req, res) => {
       const post = req.body;
-      console.log(post);
+
       const result = await commentCollection.insertOne(post);
       res.send(result);
     });
@@ -231,7 +229,7 @@ async function run() {
         updatedUser,
         option
       );
-  
+
       res.send(result);
     });
 
@@ -250,7 +248,7 @@ async function run() {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await logedWeightCollection.deleteOne(query);
-      // console.log(result)
+
       res.send(result);
     });
 
@@ -394,6 +392,14 @@ async function run() {
         .toArray();
       res.send(result);
     });
+    app.get(`/allActivity`, async (req, res) => {
+      const email = req.query.activist;
+      const query = { activist: email };
+      const result = await ActivitiesCollection.find(query)
+        .sort({ _id: -1 })
+        .toArray();
+      res.send(result);
+    });
 
     app.delete(`/activities/:id`, async (req, res) => {
       const id = req.params.id;
@@ -481,8 +487,11 @@ async function run() {
     app.get("/favouriteFood/:email", async (req, res) => {
       const email = req.params.email;
       const query = { userEmail: email };
-      const favoriteFood = await favoriteFoodCollection.find(query).limit(3)
-      .sort({ _id: -1 }).toArray();
+      const favoriteFood = await favoriteFoodCollection
+        .find(query)
+        .limit(3)
+        .sort({ _id: -1 })
+        .toArray();
       res.send(favoriteFood);
     });
     app.get("/allFavouriteFood/:email", async (req, res) => {
@@ -495,7 +504,6 @@ async function run() {
     // favourite Food
     app.post("/favouriteFood", async (req, res) => {
       const favoriteFood = req.body;
-      console.log(newFood)
       const result = await favoriteFoodCollection.insertOne(favoriteFood);
       res.send(result);
     });
